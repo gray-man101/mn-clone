@@ -28,7 +28,7 @@ public class LnService {
     public void create(LnDTO lnDTO) {
         Ln ln = new Ln();
         ln.setDbName(lnDTO.getDbName());
-        ln.setStatus(lnDTO.getStatus());
+        ln.setStatus("new");
         ln.setAmount(lnDTO.getAmount());
         lnRepository.save(ln);
     }

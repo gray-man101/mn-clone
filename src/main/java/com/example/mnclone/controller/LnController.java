@@ -11,8 +11,10 @@ import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
-@RequestMapping("/ln")
+@RequestMapping("/api/ln")
 public class LnController {
 
     @Autowired
@@ -28,7 +30,7 @@ public class LnController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@RequestBody LnDTO lnDTO) {
+    public void create(@Valid @RequestBody LnDTO lnDTO) {
         lnService.create(lnDTO);
     }
 
