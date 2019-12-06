@@ -17,15 +17,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http
-                .httpBasic().disable()
-                .cors().and()
-                .authorizeRequests()
-                .anyRequest().authenticated()
-                .and().formLogin().successHandler((request, response, authentication) -> response.setStatus(200))
-                .and()
+//                .httpBasic().disable()
+//                .cors().and()
+//                .authorizeRequests()
+//                .anyRequest().authenticated()
+//                .and().formLogin().successHandler((request, response, authentication) -> response.setStatus(200))
+//                .and()
                 .csrf().disable();
 
     }
+
+    //TODO no login for dev
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {

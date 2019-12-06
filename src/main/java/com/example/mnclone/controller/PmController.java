@@ -1,40 +1,39 @@
 package com.example.mnclone.controller;
 
 import com.example.mnclone.dto.PmDTO;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.SortDefault;
+import com.example.mnclone.service.PmService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/pm")
+@Validated
 public class PmController {
 
-    @GetMapping
-    public Object get(@PageableDefault(page = 0, size = 20)
-                      @SortDefault.SortDefaults({
-                              @SortDefault(sort = "name", direction = Sort.Direction.DESC),
-                              @SortDefault(sort = "id", direction = Sort.Direction.ASC)
-                      }) Pageable pageable) {
-        return null;
+    @Autowired
+    private PmService pmService;
+
+    @GetMapping("{id}")
+    public PmDTO get(@PathVariable("id") Long id) {
+        return pmService.findPm(id);
     }
 
     @PostMapping
-    public void create(@RequestBody PmDTO pmDTO) {
-
+    public void create(@Valid @RequestBody PmDTO pmDTO) {
+        pmService.create(pmDTO);
     }
 
-    @PutMapping(":id")
-    public void update(@PathParam("id") Long id, @RequestBody PmDTO pmDTO) {
-
+    @PutMapping("{id}")
+    public void update(@PathVariable("id") Long id, @RequestBody PmDTO pmDTO) {
+        pmService.update(id, pmDTO);
     }
 
-    @DeleteMapping(":id")
-    public void delete(@PathParam("id") Long id) {
-
+    @DeleteMapping("{id}")
+    public void delete(@PathVariable("id") Long id) {
+        pmService.delete(id);
     }
 
 }
