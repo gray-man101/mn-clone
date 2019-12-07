@@ -2,6 +2,7 @@ package com.example.mnclone.service;
 
 import com.example.mnclone.dto.PmDTO;
 import com.example.mnclone.entity.Pm;
+import com.example.mnclone.mapper.PmDTOMapper;
 import com.example.mnclone.repository.LnRepository;
 import com.example.mnclone.repository.PmRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +22,7 @@ public class PmService {
 
     public Page<PmDTO> findPs(Long lnId, Pageable pageable) {
         //TODO lnId doesn't exist
-        return pmRepository.findByLnId(lnId, pageable)
-                .map(pm -> {
-                    PmDTO dto = new PmDTO();
-                    dto.setId(pm.getId());
-                    dto.setCreated(pm.getCreated());
-                    dto.setAmount(pm.getAmount());
-                    return dto;
-                });
+        return pmRepository.findByLnId(lnId, pageable).map(PmDTOMapper::map);
     }
 
     public void create(Long lnId, PmDTO pmDTO) {

@@ -1,7 +1,13 @@
 package com.example.mnclone.controller;
 
 import com.example.mnclone.dto.LnDTO;
+import com.example.mnclone.service.LnService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,9 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/availableLs")
 public class AvailableLnController {
 
+    @Autowired
+    private LnService lnService;
+
     @GetMapping
-    public Page<LnDTO> getAvailableLs() {
-        return Page.empty();
+    public Page<LnDTO> getAvailableLs(@PageableDefault(page = 0, size = 5)
+                                      @SortDefault.SortDefaults({
+                                              @SortDefault(sort = "created", direction = Sort.Direction.DESC)
+                                      }) Pageable pageable) {
+        return lnService.getNewLs(pageable);
     }
 
 }

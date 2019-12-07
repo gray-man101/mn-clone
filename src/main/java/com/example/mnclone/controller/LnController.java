@@ -25,7 +25,7 @@ public class LnController {
                            @SortDefault.SortDefaults({
                                    @SortDefault(sort = "created", direction = Sort.Direction.DESC)
                            }) Pageable pageable) {
-        return lnService.getLns(pageable);
+        return lnService.getLs(pageable);
     }
 
     @PostMapping

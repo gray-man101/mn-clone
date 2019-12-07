@@ -6,8 +6,10 @@ import lombok.EqualsAndHashCode;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(of = "id")
@@ -21,5 +23,7 @@ public class Ln {
     private BigDecimal amount;
     private LnStatus status;
     private ZonedDateTime created;
+    @OneToMany
+    private List<Pm> ps;
 
 }
