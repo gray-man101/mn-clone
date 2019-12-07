@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 @Data
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 @Entity
 public class Pm {
 

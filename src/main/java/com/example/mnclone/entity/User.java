@@ -7,19 +7,20 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
 
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-public class Ln {
+public class User {
 
     @Id
-    @GeneratedValue(generator = "ln_seq")
+    @GeneratedValue(generator = "user_seq")
     private Long id;
-    private String dbName;
-    private BigDecimal amount;
-    private LnStatus status;
-    private ZonedDateTime created;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private BigDecimal balance;
+    private Boolean registered;
+    private String registrationToken;
 
 }

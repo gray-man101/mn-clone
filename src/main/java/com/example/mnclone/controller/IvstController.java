@@ -6,24 +6,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/act")
-public class ActController {
+@RequestMapping("ivst")
+public class IvstController {
 
     @GetMapping
-    public void getAct() {
-    }
-
-    @PostMapping("topUp")
-    public void topUp() {
+    public void getIvsts() {
 
     }
 
-    @PostMapping("withdraw")
-    public void withdraw() {
-
-    }
-
-    @PostMapping("invest")
+    @PostMapping
     public void invest() {
 
     }
