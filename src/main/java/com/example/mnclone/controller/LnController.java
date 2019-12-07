@@ -35,12 +35,12 @@ public class LnController {
     }
 
     @PutMapping("{id}")
-    public void update(@PathVariable("id") Long id, @RequestBody LnDTO lnDTO) {
+    public void update(@PathVariable Long id, @RequestBody LnDTO lnDTO) {
         lnService.update(id, lnDTO);
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable("id") Long id) {
+    public void delete(@PathVariable Long id) {
         lnService.delete(id);
     }
 

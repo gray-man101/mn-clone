@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 
 @Data
 @EqualsAndHashCode
@@ -18,6 +19,7 @@ public class Pm {
     @GeneratedValue(generator = "pm_seq")
     private Long id;
     private BigDecimal amount;
+    private ZonedDateTime created;
     @ManyToOne
     private Ln ln;
 
