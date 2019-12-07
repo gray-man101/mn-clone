@@ -2,6 +2,7 @@ package com.example.mnclone.service;
 
 import com.example.mnclone.dto.LnDTO;
 import com.example.mnclone.entity.Ln;
+import com.example.mnclone.entity.LnStatus;
 import com.example.mnclone.repository.LnRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ public class LnService {
             lnDTO.setAmount(ln.getAmount());
             lnDTO.setStatus(ln.getStatus());
             lnDTO.setDbName(ln.getDbName());
+            lnDTO.setCreated(ln.getCreated());
             return lnDTO;
         });
     }
@@ -28,7 +30,7 @@ public class LnService {
     public void create(LnDTO lnDTO) {
         Ln ln = new Ln();
         ln.setDbName(lnDTO.getDbName());
-        ln.setStatus("new");
+        ln.setStatus(LnStatus.NEW);
         ln.setAmount(lnDTO.getAmount());
         lnRepository.save(ln);
     }

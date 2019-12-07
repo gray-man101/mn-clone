@@ -25,7 +25,7 @@ public class PmController {
     public Page<PmDTO> get(@PathVariable Long lnId,
                            @PageableDefault(page = 0, size = 5)
                            @SortDefault.SortDefaults({
-                                   @SortDefault(sort = "created", direction = Sort.Direction.ASC)
+                                   @SortDefault(sort = "created", direction = Sort.Direction.DESC)
                            }) Pageable pageable) {
         return pmService.findPs(lnId, pageable);
     }

@@ -23,7 +23,7 @@ public class LnController {
     @GetMapping
     public Page<LnDTO> get(@PageableDefault(page = 0, size = 5)
                            @SortDefault.SortDefaults({
-                                   @SortDefault(sort = "dbName", direction = Sort.Direction.ASC)
+                                   @SortDefault(sort = "created", direction = Sort.Direction.DESC)
                            }) Pageable pageable) {
         return lnService.getLns(pageable);
     }

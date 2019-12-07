@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 
 @Data
 @EqualsAndHashCode
@@ -18,6 +19,7 @@ public class Ln {
     private Long id;
     private String dbName;
     private BigDecimal amount;
-    private String status;
+    private LnStatus status;
+    private ZonedDateTime created;
 
 }
