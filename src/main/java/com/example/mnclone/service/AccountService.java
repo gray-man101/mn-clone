@@ -1,5 +1,6 @@
 package com.example.mnclone.service;
 
+import com.example.mnclone.CtxInfo;
 import com.example.mnclone.dto.AccountInfoDTO;
 import com.example.mnclone.entity.User;
 import com.example.mnclone.exception.InsufficientFundsException;
@@ -12,14 +13,11 @@ import java.math.BigDecimal;
 @Service
 public class AccountService {
 
-    //TODO get from ctx
-    private static final Long USER_ID = 1L;
-
     @Autowired
     private UserRepository userRepository;
 
     public AccountInfoDTO getAccountInfo() {
-        return userRepository.findRegisteredById(USER_ID).map(user -> {
+        return userRepository.findRegisteredById(CtxInfo.USER_ID).map(user -> {
             AccountInfoDTO dto = new AccountInfoDTO();
             dto.setFirstName(user.getFirstName());
             dto.setLastName(user.getLastName());
@@ -30,13 +28,13 @@ public class AccountService {
     }
 
     public void topUp(BigDecimal amount) {
-        User user = userRepository.findRegisteredById(USER_ID).orElseThrow(RuntimeException::new);
+        User user = userRepository.findRegisteredById(CtxInfo.USER_ID).orElseThrow(RuntimeException::new);
         user.setBalance(user.getBalance().add(amount));
         userRepository.save(user);
     }
 
     public void withdraw(BigDecimal amount) {
-        User user = userRepository.findRegisteredById(USER_ID).orElseThrow(RuntimeException::new);
+        User user = userRepository.findRegisteredById(CtxInfo.USER_ID).orElseThrow(RuntimeException::new);
         BigDecimal newBalance = user.getBalance().subtract(amount);
         if (BigDecimal.ZERO.compareTo(newBalance) > 0) {
             throw new InsufficientFundsException();
