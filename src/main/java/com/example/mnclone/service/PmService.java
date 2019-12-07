@@ -21,7 +21,6 @@ public class PmService {
     private LnRepository lnRepository;
 
     public Page<PmDTO> findPs(Long lnId, Pageable pageable) {
-        //TODO lnId doesn't exist
         return pmRepository.findByLnId(lnId, pageable).map(PmDTOMapper::map);
     }
 
