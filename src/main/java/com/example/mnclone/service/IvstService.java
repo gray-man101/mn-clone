@@ -2,14 +2,18 @@ package com.example.mnclone.service;
 
 import com.example.mnclone.CtxInfo;
 import com.example.mnclone.dto.IvstDTO;
+import com.example.mnclone.dto.IvstStatusDTO;
 import com.example.mnclone.dto.LnDTO;
 import com.example.mnclone.dto.PmDTO;
 import com.example.mnclone.entity.Ivst;
 import com.example.mnclone.entity.Ln;
+import com.example.mnclone.entity.LnStatus;
 import com.example.mnclone.entity.User;
 import com.example.mnclone.exception.InsufficientFundsException;
+import com.example.mnclone.exception.NotFoundException;
 import com.example.mnclone.mapper.LnDTOMapper;
 import com.example.mnclone.mapper.PmDTOMapper;
+import com.example.mnclone.model.IvstStatusModel;
 import com.example.mnclone.repository.IvstRepository;
 import com.example.mnclone.repository.LnRepository;
 import com.example.mnclone.repository.UserRepository;
@@ -49,6 +53,9 @@ public class IvstService {
         ivst.setUser(user);
         ivst.setLn(ln);
         ivstRepository.save(ivst);
+
+        ln.setStatus(LnStatus.IN_PROGRESS);
+        lnRepository.save(ln);
     }
 
     public Page<IvstDTO> getIvsts(Pageable pageable) {
@@ -66,6 +73,16 @@ public class IvstService {
 
             return ivstDTO;
         });
+    }
+
+    public IvstStatusDTO getIvsStatus(Long id) {
+        IvstStatusModel ivstStatusModel = ivstRepository.findIvstStatus(id).orElseThrow(NotFoundException::new);
+        IvstStatusDTO dto = new IvstStatusDTO();
+        dto.setId(ivstStatusModel.getId());
+        dto.setOverallAmount(ivstStatusModel.getOverallAmount());
+        dto.setPaidAmount(ivstStatusModel.getPaidAmount());
+        dto.setPayments(ivstStatusModel.getPayments());
+        return dto;
     }
 
 }

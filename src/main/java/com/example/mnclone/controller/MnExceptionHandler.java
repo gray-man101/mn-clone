@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 public class MnExceptionHandler {
 
+    //TODO vipilitj
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<String> handleValidationExceptions(DataIntegrityViolationException ex) {

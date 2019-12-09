@@ -29,14 +29,14 @@ public class StartupComponent {
         user.setEmail("john@gmail.com");
         user.setFirstName("John");
         user.setLastName("Doe");
-        user.setBalance(BigDecimal.valueOf(10));
+        user.setBalance(BigDecimal.valueOf(1700));
         user.setRegistered(true);
         userRepository.save(user);
 
         for (int i = 0; i < 2; i++) {
             Ln ln = new Ln();
-            ln.setDbName(i + "Jon");
-            ln.setAmount(BigDecimal.valueOf(i));
+            ln.setDbName("Jon");
+            ln.setAmount(BigDecimal.valueOf(i*500 + 1000));
             ln.setStatus(LnStatus.NEW);
             ln.setCreated(ZonedDateTime.now());
             lnRepository.save(ln);
