@@ -1,8 +1,10 @@
 package com.example.mnclone.startup;
 
+import com.example.mnclone.entity.Ivst;
 import com.example.mnclone.entity.Ln;
 import com.example.mnclone.entity.LnStatus;
 import com.example.mnclone.entity.User;
+import com.example.mnclone.repository.IvstRepository;
 import com.example.mnclone.repository.LnRepository;
 import com.example.mnclone.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ public class StartupComponent {
     private LnRepository lnRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private IvstRepository ivstRepository;
 
     @EventListener
     public void handleContextStart(ContextRefreshedEvent cse) {
@@ -33,13 +37,23 @@ public class StartupComponent {
         user.setRegistered(true);
         userRepository.save(user);
 
-        for (int i = 0; i < 2; i++) {
-            Ln ln = new Ln();
-            ln.setDbName("Jon");
-            ln.setAmount(BigDecimal.valueOf(i*500 + 1000));
-            ln.setStatus(LnStatus.NEW);
-            ln.setCreated(ZonedDateTime.now());
-            lnRepository.save(ln);
-        }
+        Ln ln1 = createLn("John", BigDecimal.valueOf(1000));
+        Ln ln2 = createLn("Steve", BigDecimal.valueOf(1500));
+        ln2.setStatus(LnStatus.IN_PROGRESS);
+        lnRepository.save(ln2);
+
+        Ivst ivst = new Ivst();
+        ivst.setLn(ln2);
+        ivst.setUser(user);
+        ivstRepository.save(ivst);
+    }
+
+    private Ln createLn(String name, BigDecimal amount) {
+        Ln ln = new Ln();
+        ln.setDbName(name);
+        ln.setAmount(amount);
+        ln.setStatus(LnStatus.NEW);
+        ln.setCreated(ZonedDateTime.now());
+        return lnRepository.save(ln);
     }
 }

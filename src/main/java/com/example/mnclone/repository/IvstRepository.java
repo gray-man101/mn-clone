@@ -15,10 +15,10 @@ public interface IvstRepository extends JpaRepository<Ivst, Long> {
     @Query("select i from Ivst i where i.user.id=:userId order by i.ln.created desc")
     Page<Ivst> findByUserId(@Param("userId") Long userId, Pageable pageable);
 
-    @Query("select i.id as id, l.amount as overallAmount, count(p.id) as payments, sum(p.amount) as paidAmount " +
+    @Query("select i.id as id, l.amount as overallAmount, count(p.id) as payments, coalesce(sum(p.amount), 0) as paidAmount " +
             "from Ivst i " +
             "join i.ln as l " +
-            "join l.ps as p " +
+            "left join l.ps as p " +
             "where i.id=:ivstId " +
             "group by i.id")
     Optional<IvstStatusModel> findIvstStatus(@Param("ivstId") Long ivstId);

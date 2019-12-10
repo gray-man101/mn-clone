@@ -62,6 +62,7 @@ public class IvstService {
         return ivstRepository.findByUserId(CtxInfo.USER_ID, pageable).map(ivst -> {
             //TODO refine queries
             IvstDTO ivstDTO = new IvstDTO();
+            ivstDTO.setId(ivst.getId());
             Ln ln = ivst.getLn();
             LnDTO lnDTO = LnDTOMapper.map(ln);
             ivstDTO.setLnDTO(lnDTO);
