@@ -17,20 +17,30 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http
-//                .httpBasic().disable()
-//                .cors().and()
-//                .authorizeRequests()
-//                .anyRequest().authenticated()
-//                .and().formLogin().successHandler((request, response, authentication) -> response.setStatus(200))
-//                .and()
+//                .formLogin().successHandler((request, response, authentication) -> response.setStatus(200))
+//                .and().authorizeRequests().anyRequest().authenticated().and()
+                .httpBasic().disable()
+                .cors().disable()
+                .authorizeRequests()
+                .anyRequest().authenticated()
+                .and().formLogin().successHandler((request, response, authentication) -> response.setStatus(200))
+                .and()
                 .csrf().disable();
-
     }
 
     //TODO no login for dev
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//        auth.inMemoryAuthentication().withUser("aa")
+//                .password("{noop}bb")
+//                .roles("CUSTOMER")
+//                .and()
+//                .withUser("cc")
+//                .password("{noop}dd")
+//                .roles("COMPANY_ADMIN");
         auth.authenticationProvider(swCloneAuthenticationProvider);
     }
+
+
 }
