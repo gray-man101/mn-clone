@@ -1,11 +1,9 @@
 package com.example.mnclone.startup;
 
-import com.example.mnclone.entity.Ivst;
-import com.example.mnclone.entity.Ln;
-import com.example.mnclone.entity.LnStatus;
-import com.example.mnclone.entity.User;
+import com.example.mnclone.entity.*;
 import com.example.mnclone.repository.IvstRepository;
 import com.example.mnclone.repository.LnRepository;
+import com.example.mnclone.repository.PmRepository;
 import com.example.mnclone.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -26,6 +24,8 @@ public class StartupComponent {
     private UserRepository userRepository;
     @Autowired
     private IvstRepository ivstRepository;
+    @Autowired
+    private PmRepository pmRepository;
 
     @EventListener
     public void handleContextStart(ContextRefreshedEvent cse) {
@@ -39,13 +39,17 @@ public class StartupComponent {
 
         Ln ln1 = createLn("John", BigDecimal.valueOf(1000));
         Ln ln2 = createLn("Steve", BigDecimal.valueOf(1500));
+        Ln ln3 = createLn("Pete", BigDecimal.valueOf(2000));
+        ln1.setStatus(LnStatus.IN_PROGRESS);
+        lnRepository.save(ln1);
         ln2.setStatus(LnStatus.IN_PROGRESS);
         lnRepository.save(ln2);
 
-        Ivst ivst = new Ivst();
-        ivst.setLn(ln2);
-        ivst.setUser(user);
-        ivstRepository.save(ivst);
+        createIvst(ln1, user);
+        createIvst(ln2, user);
+
+        createPm(BigDecimal.valueOf(100), ln2);
+        createPm(BigDecimal.valueOf(110), ln2);
     }
 
     private Ln createLn(String name, BigDecimal amount) {
@@ -55,5 +59,20 @@ public class StartupComponent {
         ln.setStatus(LnStatus.NEW);
         ln.setCreated(ZonedDateTime.now());
         return lnRepository.save(ln);
+    }
+
+    private Pm createPm(BigDecimal amount, Ln ln) {
+        Pm pm = new Pm();
+        pm.setLn(ln);
+        pm.setAmount(amount);
+        pm.setCreated(ZonedDateTime.now());
+        return pmRepository.save(pm);
+    }
+
+    private Ivst createIvst(Ln ln, User user) {
+        Ivst ivst = new Ivst();
+        ivst.setLn(ln);
+        ivst.setUser(user);
+        return ivstRepository.save(ivst);
     }
 }

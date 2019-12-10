@@ -2,6 +2,7 @@ package com.example.mnclone.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(of = "id")
+@ToString(exclude = "ps")
 @Entity
 public class Ln {
 
@@ -23,7 +25,7 @@ public class Ln {
     private BigDecimal amount;
     private LnStatus status;
     private ZonedDateTime created;
-    @OneToMany
+    @OneToMany(mappedBy = "ln")
     private List<Pm> ps;
 
 }

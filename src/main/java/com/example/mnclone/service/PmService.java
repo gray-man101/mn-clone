@@ -1,7 +1,11 @@
 package com.example.mnclone.service;
 
 import com.example.mnclone.dto.PmDTO;
+import com.example.mnclone.entity.Ln;
+import com.example.mnclone.entity.LnStatus;
 import com.example.mnclone.entity.Pm;
+import com.example.mnclone.exception.NotFoundException;
+import com.example.mnclone.exception.UnexpectedLnStatusException;
 import com.example.mnclone.mapper.PmDTOMapper;
 import com.example.mnclone.repository.LnRepository;
 import com.example.mnclone.repository.PmRepository;
@@ -25,9 +29,13 @@ public class PmService {
     }
 
     public void create(Long lnId, PmDTO pmDTO) {
+        Ln ln = lnRepository.findById(lnId).orElseThrow(NotFoundException::new);
+        if (ln.getStatus() != LnStatus.IN_PROGRESS) {
+            throw new UnexpectedLnStatusException();
+        }
         Pm pm = new Pm();
         pm.setAmount(pmDTO.getAmount());
-        pm.setLn(lnRepository.getOne(lnId));
+        pm.setLn(ln);
         pm.setCreated(ZonedDateTime.now());
         pmRepository.save(pm);
     }
