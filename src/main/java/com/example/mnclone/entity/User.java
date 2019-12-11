@@ -17,7 +17,7 @@ public class User {
     @Id
     @GeneratedValue(generator = "user_seq")
     private Long id;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
     @Column(nullable = false)
     private String passwordHash;
