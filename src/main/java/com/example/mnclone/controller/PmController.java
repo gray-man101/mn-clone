@@ -8,14 +8,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
 @RestController
+@PreAuthorize("hasRole('COMPANY_ADMIN')")
 @RequestMapping("/api/ln/{lnId}/pm")
-@Validated
 public class PmController {
 
     @Autowired

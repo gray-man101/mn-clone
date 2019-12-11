@@ -1,6 +1,5 @@
 package com.example.mnclone.service;
 
-import com.example.mnclone.CtxInfo;
 import com.example.mnclone.dto.IvstDTO;
 import com.example.mnclone.dto.IvstStatusDTO;
 import com.example.mnclone.dto.LnDTO;
@@ -38,8 +37,8 @@ public class IvstService {
     private LnRepository lnRepository;
 
     @Transactional
-    public void ivst(Long lnId) {
-        User user = userRepository.findRegisteredById(CtxInfo.USER_ID).orElseThrow(RuntimeException::new);
+    public void ivst(Long ivstrId, Long lnId) {
+        User user = userRepository.findRegisteredById(ivstrId).orElseThrow(RuntimeException::new);
         Ln ln = lnRepository.findNewById(lnId).orElseThrow(RuntimeException::new);
 
         BigDecimal newBalance = user.getBalance().subtract(ln.getAmount());
@@ -50,7 +49,7 @@ public class IvstService {
         userRepository.save(user);
 
         Ivst ivst = new Ivst();
-        ivst.setUser(user);
+        ivst.setIvstr(user);
         ivst.setLn(ln);
         ivstRepository.save(ivst);
 
@@ -58,8 +57,8 @@ public class IvstService {
         lnRepository.save(ln);
     }
 
-    public Page<IvstDTO> getIvsts(Pageable pageable) {
-        return ivstRepository.findByUserId(CtxInfo.USER_ID, pageable).map(ivst -> {
+    public Page<IvstDTO> getIvsts(Long ivstrId, Pageable pageable) {
+        return ivstRepository.findByUserId(ivstrId, pageable).map(ivst -> {
             //TODO refine queries
             IvstDTO ivstDTO = new IvstDTO();
             ivstDTO.setId(ivst.getId());
@@ -76,8 +75,8 @@ public class IvstService {
         });
     }
 
-    public IvstStatusDTO getIvsStatus(Long id) {
-        IvstStatusModel ivstStatusModel = ivstRepository.findIvstStatus(id).orElseThrow(NotFoundException::new);
+    public IvstStatusDTO getIvsStatus(Long ivstrId, Long id) {
+        IvstStatusModel ivstStatusModel = ivstRepository.findIvstStatus(id, ivstrId).orElseThrow(NotFoundException::new);
         IvstStatusDTO dto = new IvstStatusDTO();
         dto.setId(ivstStatusModel.getId());
         dto.setOverallAmount(ivstStatusModel.getOverallAmount());

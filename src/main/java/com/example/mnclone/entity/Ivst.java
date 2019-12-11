@@ -17,7 +17,7 @@ public class Ivst {
     @GeneratedValue(generator = "ivst_seq")
     private Long id;
     @ManyToOne
-    private User user;
+    private User ivstr;
     @ManyToOne
     private Ln ln;
 

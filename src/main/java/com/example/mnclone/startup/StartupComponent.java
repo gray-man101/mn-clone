@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -26,16 +27,12 @@ public class StartupComponent {
     private IvstRepository ivstRepository;
     @Autowired
     private PmRepository pmRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @EventListener
-    public void handleContextStart(ContextRefreshedEvent cse) {
-        User user = new User();
-        user.setEmail("john@gmail.com");
-        user.setFirstName("John");
-        user.setLastName("Doe");
-        user.setBalance(BigDecimal.valueOf(1700));
-        user.setRegistered(true);
-        userRepository.save(user);
+    public void handleContextStart(ContextRefreshedEvent cre) {
+        User user = createCustomer("customer@gmail.com");
 
         Ln ln1 = createLn("John", BigDecimal.valueOf(1000));
         Ln ln2 = createLn("Steve", BigDecimal.valueOf(1500));
@@ -50,6 +47,18 @@ public class StartupComponent {
 
         createPm(BigDecimal.valueOf(100), ln2);
         createPm(BigDecimal.valueOf(110), ln2);
+    }
+
+    private User createCustomer(String email) {
+        User customer = new User();
+        customer.setEmail(email);
+        customer.setFirstName("John");
+        customer.setLastName("Doe");
+        customer.setBalance(BigDecimal.valueOf(1700));
+        customer.setRegistered(true);
+        customer.setPasswordHash(passwordEncoder.encode("SuPeRsEcUrEpWs0987654321"));
+        customer.setRegistrationToken(passwordEncoder.encode("123" + email));
+        return userRepository.save(customer);
     }
 
     private Ln createLn(String name, BigDecimal amount) {
@@ -69,10 +78,10 @@ public class StartupComponent {
         return pmRepository.save(pm);
     }
 
-    private Ivst createIvst(Ln ln, User user) {
+    private Ivst createIvst(Ln ln, User ivstr) {
         Ivst ivst = new Ivst();
         ivst.setLn(ln);
-        ivst.setUser(user);
+        ivst.setIvstr(ivstr);
         return ivstRepository.save(ivst);
     }
 }

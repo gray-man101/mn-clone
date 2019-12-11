@@ -1,14 +1,17 @@
 package com.example.mnclone.controller;
 
+import com.example.mnclone.config.MnCloneAuthenticationToken;
 import com.example.mnclone.dto.AccountInfoDTO;
 import com.example.mnclone.dto.MoneyRequestDTO;
 import com.example.mnclone.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
 @RestController
+@PreAuthorize("hasRole('CUSTOMER')")
 @RequestMapping("/api/account")
 public class AccountController {
 
@@ -16,21 +19,18 @@ public class AccountController {
     private AccountService accountService;
 
     @GetMapping
-    public AccountInfoDTO getAccountInfo() {
-//        if (1 == 1) {
-//            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-//        }
-        return accountService.getAccountInfo();
+    public AccountInfoDTO getAccountInfo(MnCloneAuthenticationToken auth) {
+        return accountService.getAccountInfo(auth.getUserId());
     }
 
     @PostMapping("topUp")
-    public void topUp(@Valid @RequestBody MoneyRequestDTO moneyRequestDTO) {
-        accountService.topUp(moneyRequestDTO.getAmount());
+    public void topUp(MnCloneAuthenticationToken auth, @Valid @RequestBody MoneyRequestDTO moneyRequestDTO) {
+        accountService.topUp(auth.getUserId(), moneyRequestDTO.getAmount());
     }
 
     @PostMapping("withdraw")
-    public void withdraw(@Valid @RequestBody MoneyRequestDTO moneyRequestDTO) {
-        accountService.withdraw(moneyRequestDTO.getAmount());
+    public void withdraw(MnCloneAuthenticationToken auth, @Valid @RequestBody MoneyRequestDTO moneyRequestDTO) {
+        accountService.withdraw(auth.getUserId(), moneyRequestDTO.getAmount());
     }
 
 }

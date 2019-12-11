@@ -11,4 +11,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u from User u where u.registered=true")
     Optional<User> findRegisteredById(Long id);
 
+    Optional<User> findByEmail(String email);
+
 }

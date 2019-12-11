@@ -18,6 +18,7 @@ dependencies {
 	compile 'org.springframework.boot:spring-boot-starter-security'
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+	compile 'org.apache.commons:commons-lang3:3.9'
 	compile 'org.projectlombok:lombok:1.18.10'	
 	annotationProcessor 'org.projectlombok:lombok:1.18.10'
 	compile 'com.h2database:h2'
