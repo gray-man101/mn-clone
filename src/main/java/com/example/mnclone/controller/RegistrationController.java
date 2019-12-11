@@ -3,11 +3,13 @@ package com.example.mnclone.controller;
 import com.example.mnclone.dto.RegistrationDTO;
 import com.example.mnclone.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
 @RestController
+@PreAuthorize("isAnonymous()")
 @RequestMapping("/api/register")
 public class RegistrationController {
 
@@ -22,7 +24,7 @@ public class RegistrationController {
     @GetMapping
     public void completeRegistration(@RequestParam String token) {
         userService.completeRegistration(token);
-        //TODO redirect
+        //TODO maybe redirect
     }
 
 }

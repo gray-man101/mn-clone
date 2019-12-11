@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@PreAuthorize("hasRole('CUSTOMER')")
+@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 @RequestMapping("/api/availableLs")
 public class AvailableLnController {
 

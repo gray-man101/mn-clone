@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@PreAuthorize("hasRole('CUSTOMER')")
+@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 @RequestMapping("/api/account")
 public class AccountController {
 

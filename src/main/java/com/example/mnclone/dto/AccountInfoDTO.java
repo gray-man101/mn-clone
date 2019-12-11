@@ -10,6 +10,4 @@ public class AccountInfoDTO {
     private String lastName;
     private String email;
     private BigDecimal balance;
-//    private String role = "COMPANY_ADMIN";
-    private String role = "CUSTOMER";
 }

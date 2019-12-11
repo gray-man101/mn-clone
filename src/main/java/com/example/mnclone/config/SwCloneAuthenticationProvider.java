@@ -21,9 +21,9 @@ import java.util.Optional;
 @Component
 public class SwCloneAuthenticationProvider implements AuthenticationProvider {
 
-    @Value("admin.username")
+    @Value("${admin.username}")
     private String adminUserName;
-    @Value("admin.passwordHash")
+    @Value("${admin.passwordHash}")
     private String adminPasswordHash;
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -41,12 +41,12 @@ public class SwCloneAuthenticationProvider implements AuthenticationProvider {
 
         String encodedPassword = passwordEncoder.encode(password);
         if (StringUtils.equals(username, adminUserName) && StringUtils.equals(encodedPassword, adminPasswordHash)) {
-            return new UsernamePasswordAuthenticationToken(username, password, Collections.singletonList(new SimpleGrantedAuthority("COMPANY_ADMIN")));
+            return new MnCloneAuthenticationToken(username, password, Collections.singletonList(new SimpleGrantedAuthority("ROLE_COMPANY_ADMIN")), -1L);
         }
 
         Optional<User> customer = userRepository.findByEmail(username);
         if (customer.isPresent() && StringUtils.equals(encodedPassword, customer.get().getPasswordHash())) {
-            return new MnCloneAuthenticationToken(username, password, Collections.singletonList(new SimpleGrantedAuthority("CUSTOMER")), customer.get().getId());
+            return new MnCloneAuthenticationToken(username, password, Collections.singletonList(new SimpleGrantedAuthority("ROLE_CUSTOMER")), customer.get().getId());
         }
 
         throw new UsernameNotFoundException("user not found");

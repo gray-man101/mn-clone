@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@PreAuthorize("hasRole('COMPANY_ADMIN')")
+@PreAuthorize("hasRole('ROLE_COMPANY_ADMIN')")
 @RequestMapping("/api/ln/{lnId}/pm")
 public class PmController {
 
