@@ -32,7 +32,7 @@ public class StartupComponent {
 
     @EventListener
     public void handleContextStart(ContextRefreshedEvent cre) {
-        User user = createCustomer("customer@gmail.com");
+        User user = createCustomer("cs@cs.lv");
 
         Ln ln1 = createLn("John", BigDecimal.valueOf(1000));
         Ln ln2 = createLn("Steve", BigDecimal.valueOf(1500));
