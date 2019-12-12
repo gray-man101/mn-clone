@@ -56,7 +56,7 @@ public class StartupComponent {
         customer.setLastName("Doe");
         customer.setBalance(BigDecimal.valueOf(1700));
         customer.setRegistered(true);
-        customer.setPasswordHash(passwordEncoder.encode("SuPeRsEcUrEpWs0987654321"));
+        customer.setEncodedPassword(passwordEncoder.encode("SuPeRsEcUrEpWs0987654321"));
         customer.setRegistrationToken(passwordEncoder.encode("123" + email));
         return userRepository.save(customer);
     }

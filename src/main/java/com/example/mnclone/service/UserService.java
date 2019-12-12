@@ -25,7 +25,7 @@ public class UserService {
         User user = new User();
         String registrationToken = UUID.randomUUID().toString();
         user.setEmail(registrationDTO.getEmail());
-        user.setPasswordHash(passwordEncoder.encode(registrationDTO.getPassword()));
+        user.setEncodedPassword(passwordEncoder.encode(registrationDTO.getPassword()));
         user.setFirstName(registrationDTO.getFirstName());
         user.setLastName(registrationDTO.getLastName());
         user.setBalance(BigDecimal.ZERO);
