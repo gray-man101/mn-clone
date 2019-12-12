@@ -60,12 +60,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new PasswordEncoder() {
             @Override
             public String encode(CharSequence rawPassword) {
-                return "123";
+                return "any password will work";
             }
 
             @Override
             public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                return false;
+                return true;
             }
         };
     }

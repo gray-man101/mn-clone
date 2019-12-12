@@ -24,7 +24,7 @@ public class SwCloneAuthenticationProvider implements AuthenticationProvider {
     @Value("${admin.username}")
     private String adminUserName;
     @Value("${admin.passwordHash}")
-    private String adminPasswordHash;
+    private String adminEncodedPassword;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -39,13 +39,12 @@ public class SwCloneAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("username and password can not be empty");
         }
 
-        String encodedPassword = passwordEncoder.encode(password);
-        if (StringUtils.equals(username, adminUserName) && StringUtils.equals(encodedPassword, adminPasswordHash)) {
+        if (StringUtils.equals(username, adminUserName) && passwordEncoder.matches(password, adminEncodedPassword)) {
             return new MnCloneAuthenticationToken(username, password, Collections.singletonList(new SimpleGrantedAuthority("ROLE_COMPANY_ADMIN")), -1L);
         }
 
         Optional<User> customer = userRepository.findByEmail(username);
-        if (customer.isPresent() && StringUtils.equals(encodedPassword, customer.get().getPasswordHash())) {
+        if (customer.isPresent() && passwordEncoder.matches(password, customer.get().getEncodedPassword())) {
             return new MnCloneAuthenticationToken(username, password, Collections.singletonList(new SimpleGrantedAuthority("ROLE_CUSTOMER")), customer.get().getId());
         }
 
