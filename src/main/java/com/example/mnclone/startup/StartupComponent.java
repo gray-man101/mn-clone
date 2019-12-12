@@ -65,6 +65,7 @@ public class StartupComponent {
         Ln ln = new Ln();
         ln.setDbName(name);
         ln.setAmount(amount);
+        ln.setAmountToReturn(amount.add(BigDecimal.valueOf(500)));
         ln.setStatus(LnStatus.NEW);
         ln.setCreated(ZonedDateTime.now());
         return lnRepository.save(ln);

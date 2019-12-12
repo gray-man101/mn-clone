@@ -9,6 +9,7 @@ public class LnDTOMapper {
         LnDTO dto = new LnDTO();
         dto.setId(ln.getId());
         dto.setAmount(ln.getAmount());
+        dto.setAmountToReturn(ln.getAmountToReturn());
         dto.setStatus(ln.getStatus());
         dto.setDbName(ln.getDbName());
         dto.setCreated(ln.getCreated());

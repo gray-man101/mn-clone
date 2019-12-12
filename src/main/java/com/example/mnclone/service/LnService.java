@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
+
 @Service
 public class LnService {
 
@@ -30,21 +32,22 @@ public class LnService {
         ln.setDbName(lnDTO.getDbName());
         ln.setStatus(LnStatus.NEW);
         ln.setAmount(lnDTO.getAmount());
+        ln.setAmountToReturn(lnDTO.getAmountToReturn());
+        ln.setCreated(ZonedDateTime.now());
         lnRepository.save(ln);
     }
 
     public void update(Long id, LnDTO lnDTO) {
         Ln ln = lnRepository.getOne(id);
         ln.setDbName(lnDTO.getDbName());
-        //TODO check possible statuses
-        ln.setStatus(lnDTO.getStatus());
         ln.setAmount(lnDTO.getAmount());
+        ln.setAmountToReturn(lnDTO.getAmountToReturn());
         lnRepository.save(ln);
     }
 
     @Transactional
     public void delete(Long id) {
+        //TODO delete investments, return money, delete ln
         lnRepository.deleteById(id);
-        //TODO notify user
     }
 }

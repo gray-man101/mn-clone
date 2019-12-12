@@ -7,14 +7,19 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @ControllerAdvice
 public class MnExceptionHandler {
 
-    //TODO vipilitj
+    //TODO predotvratitj keisi, napisatj javadoc, chto eto dlja krajnih sluchaev
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<String> handleValidationExceptions(DataIntegrityViolationException ex) {
-        return new ResponseEntity<>("error occured", HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(DataIntegrityViolationException ex) {
+        return new ResponseEntity<>(new HashMap<String, String>() {{
+            put("message", "cannot perform operation");
+        }}, HttpStatus.BAD_REQUEST);
     }
 
 }

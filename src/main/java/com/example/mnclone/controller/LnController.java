@@ -44,6 +44,7 @@ public class LnController {
     @DeleteMapping("{id}")
     public void delete(@PathVariable Long id) {
         lnService.delete(id);
+        //TODO notify user
     }
 
 }

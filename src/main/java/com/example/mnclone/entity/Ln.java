@@ -4,10 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -21,9 +18,15 @@ public class Ln {
     @Id
     @GeneratedValue(generator = "ln_seq")
     private Long id;
+    @Column(nullable = false)
     private String dbName;
+    @Column(nullable = false)
     private BigDecimal amount;
+    @Column(nullable = false)
+    private BigDecimal amountToReturn;
+    @Column(nullable = false)
     private LnStatus status;
+    @Column(nullable = false)
     private ZonedDateTime created;
     @OneToMany(mappedBy = "ln")
     private List<Pm> ps;

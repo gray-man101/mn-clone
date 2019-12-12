@@ -16,6 +16,8 @@ public class LnDTO {
     private String dbName;
     @NotNull(message = "Ln amount cannot be empty")
     private BigDecimal amount;
+    @NotNull(message = "Ln amount to return cannot be empty")
+    private BigDecimal amountToReturn;
     private LnStatus status;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private ZonedDateTime created;
