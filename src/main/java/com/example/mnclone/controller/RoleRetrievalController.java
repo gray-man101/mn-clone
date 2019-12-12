@@ -15,8 +15,10 @@ import java.util.Map;
 public class RoleRetrievalController {
     @GetMapping
     public Map<String, String> retrieveRole(MnCloneAuthenticationToken auth) {
+        String role = auth.getAuthorities().toArray()[0].toString();
         return new HashMap<String, String>() {{
-            put("role", auth.getAuthorities().toArray()[0].toString());
+            put("role", role);
+            put("homePath", "ROLE_COMPANY_ADMIN".equals(role) ? "/admin" : "/");
         }};
     }
 }
