@@ -1,9 +1,9 @@
 package com.example.mnclone.startup;
 
 import com.example.mnclone.entity.*;
-import com.example.mnclone.repository.IvstRepository;
-import com.example.mnclone.repository.LnRepository;
-import com.example.mnclone.repository.PmRepository;
+import com.example.mnclone.repository.InvestmentRepository;
+import com.example.mnclone.repository.LoanRepository;
+import com.example.mnclone.repository.PaymentRepository;
 import com.example.mnclone.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.time.ZonedDateTime;
 
 @Component
@@ -20,13 +22,13 @@ import java.time.ZonedDateTime;
 public class StartupComponent {
 
     @Autowired
-    private LnRepository lnRepository;
+    private LoanRepository loanRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private IvstRepository ivstRepository;
+    private InvestmentRepository investmentRepository;
     @Autowired
-    private PmRepository pmRepository;
+    private PaymentRepository paymentRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -34,19 +36,19 @@ public class StartupComponent {
     public void handleContextStart(ContextRefreshedEvent cre) {
         User user = createCustomer("cs@cs.lv");
 
-        Ln ln1 = createLn("John", BigDecimal.valueOf(1000));
-        Ln ln2 = createLn("Steve", BigDecimal.valueOf(1500));
-        Ln ln3 = createLn("Pete", BigDecimal.valueOf(2000));
-        ln1.setStatus(LnStatus.IN_PROGRESS);
-        lnRepository.save(ln1);
-        ln2.setStatus(LnStatus.IN_PROGRESS);
-        lnRepository.save(ln2);
+        Loan loan1 = createLoan("John", BigDecimal.valueOf(1000));
+        Loan loan2 = createLoan("Steve", BigDecimal.valueOf(1500));
+        Loan loan3 = createLoan("Peter", BigDecimal.valueOf(2000));
+        loan1.setStatus(LoanStatus.IN_PROGRESS);
+        loanRepository.save(loan1);
+        loan2.setStatus(LoanStatus.IN_PROGRESS);
+        loanRepository.save(loan2);
 
-        createIvst(ln1, user);
-        createIvst(ln2, user);
+        createInvestment(loan1, user);
+        createInvestment(loan2, user);
 
-        createPm(BigDecimal.valueOf(100), ln2);
-        createPm(BigDecimal.valueOf(110), ln2);
+        createPayment(BigDecimal.valueOf(100), loan2);
+        createPayment(BigDecimal.valueOf(110), loan2);
     }
 
     private User createCustomer(String email) {
@@ -61,28 +63,31 @@ public class StartupComponent {
         return userRepository.save(customer);
     }
 
-    private Ln createLn(String name, BigDecimal amount) {
-        Ln ln = new Ln();
-        ln.setDbName(name);
-        ln.setAmount(amount);
-        ln.setAmountToReturn(amount.add(BigDecimal.valueOf(500)));
-        ln.setStatus(LnStatus.NEW);
-        ln.setCreated(ZonedDateTime.now());
-        return lnRepository.save(ln);
+    private Loan createLoan(String name, BigDecimal amount) {
+        Loan loan = new Loan();
+        loan.setDebtorName(name);
+        loan.setAmount(amount);
+        loan.setAmountToReturn(amount.add(BigDecimal.valueOf(500)));
+        loan.setInvestorInterest(BigDecimal.valueOf(1.11));
+        loan.setStatus(LoanStatus.NEW);
+        loan.setCreated(ZonedDateTime.now());
+        return loanRepository.save(loan);
     }
 
-    private Pm createPm(BigDecimal amount, Ln ln) {
-        Pm pm = new Pm();
-        pm.setLn(ln);
-        pm.setAmount(amount);
-        pm.setCreated(ZonedDateTime.now());
-        return pmRepository.save(pm);
+    private Payment createPayment(BigDecimal amount, Loan loan) {
+        Payment payment = new Payment();
+        payment.setLoan(loan);
+        payment.setAmount(amount);
+        payment.setCreated(ZonedDateTime.now());
+        return paymentRepository.save(payment);
     }
 
-    private Ivst createIvst(Ln ln, User ivstr) {
-        Ivst ivst = new Ivst();
-        ivst.setLn(ln);
-        ivst.setIvstr(ivstr);
-        return ivstRepository.save(ivst);
+    private Investment createInvestment(Loan loan, User investor) {
+        Investment investment = new Investment();
+        investment.setLoan(loan);
+        investment.setInvestor(investor);
+        investment.setAmountToReceive(loan.getAmount()
+                .multiply(loan.getInvestorInterest(), new MathContext(2, RoundingMode.DOWN)));
+        return investmentRepository.save(investment);
     }
 }

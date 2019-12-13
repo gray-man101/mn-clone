@@ -1,6 +1,6 @@
 package com.example.mnclone.entity;
 
-public enum LnStatus {
+public enum LoanStatus {
 
     NEW, IN_PROGRESS, COMPLETE, FAILED
 

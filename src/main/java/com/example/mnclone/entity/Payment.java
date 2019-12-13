@@ -3,22 +3,24 @@ package com.example.mnclone.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-public class Pm {
+public class Payment {
 
     @Id
-    @GeneratedValue(generator = "pm_seq")
+    @GeneratedValue(generator = "payment_seq")
     private Long id;
     private BigDecimal amount;
     private ZonedDateTime created;
-    @ManyToOne
-    @JoinColumn(name = "ln_id")
-    private Ln ln;
+    @ManyToOne(optional = false)
+    private Loan loan;
 
 }

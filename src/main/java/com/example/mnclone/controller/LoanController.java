@@ -1,7 +1,7 @@
 package com.example.mnclone.controller;
 
-import com.example.mnclone.dto.LnDTO;
-import com.example.mnclone.service.LnService;
+import com.example.mnclone.dto.LoanDTO;
+import com.example.mnclone.service.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,34 +16,34 @@ import javax.validation.Valid;
 
 @RestController
 @PreAuthorize("hasRole('ROLE_COMPANY_ADMIN')")
-@RequestMapping("/api/ln")
-public class LnController {
+@RequestMapping("/api/loan")
+public class LoanController {
 
     @Autowired
-    private LnService lnService;
+    private LoanService loanService;
 
     @GetMapping
-    public Page<LnDTO> get(@PageableDefault(page = 0, size = 5)
-                           @SortDefault.SortDefaults({
-                                   @SortDefault(sort = "created", direction = Sort.Direction.DESC)
-                           }) Pageable pageable) {
-        return lnService.getLs(pageable);
+    public Page<LoanDTO> get(@PageableDefault(page = 0, size = 5)
+                             @SortDefault.SortDefaults({
+                                     @SortDefault(sort = "created", direction = Sort.Direction.DESC)
+                             }) Pageable pageable) {
+        return loanService.getLs(pageable);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@Valid @RequestBody LnDTO lnDTO) {
-        lnService.create(lnDTO);
+    public void create(@Valid @RequestBody LoanDTO loanDTO) {
+        loanService.create(loanDTO);
     }
 
     @PutMapping("{id}")
-    public void update(@PathVariable Long id, @RequestBody LnDTO lnDTO) {
-        lnService.update(id, lnDTO);
+    public void update(@PathVariable Long id, @RequestBody LoanDTO loanDTO) {
+        loanService.update(id, loanDTO);
     }
 
     @DeleteMapping("{id}")
     public void delete(@PathVariable Long id) {
-        lnService.delete(id);
+        loanService.delete(id);
         //TODO notify user
     }
 

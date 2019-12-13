@@ -1,6 +1,5 @@
 package com.example.mnclone.dto;
 
-import com.example.mnclone.entity.LnStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -9,16 +8,11 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 @Data
-public class LnDTO {
+public class PaymentDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
-    @NotNull(message = "Db name cannot be empty")
-    private String dbName;
-    @NotNull(message = "Ln amount cannot be empty")
+    @NotNull(message = "Payment amount cannot be empty")
     private BigDecimal amount;
-    @NotNull(message = "Ln amount to return cannot be empty")
-    private BigDecimal amountToReturn;
-    private LnStatus status;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private ZonedDateTime created;
 }
