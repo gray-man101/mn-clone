@@ -15,18 +15,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-@RequestMapping("/api/availableLoans")
+@RequestMapping("/api/availableLoan")
 public class AvailableLoanController {
 
     @Autowired
     private LoanService loanService;
 
     @GetMapping
-    public Page<LoanDTO> getAvailableLs(@PageableDefault(page = 0, size = 5)
-                                        @SortDefault.SortDefaults({
-                                                @SortDefault(sort = "created", direction = Sort.Direction.DESC)
-                                        }) Pageable pageable) {
-        return loanService.getNewLoans(pageable);
+    public Page<LoanDTO> getAvailableLoans(@PageableDefault(page = 0, size = 5)
+                                           @SortDefault.SortDefaults({
+                                                   @SortDefault(sort = "created", direction = Sort.Direction.DESC)
+                                           }) Pageable pageable) {
+        return loanService.getAvailableLoans(pageable);
     }
 
 }

@@ -27,7 +27,7 @@ public class LoanController {
                              @SortDefault.SortDefaults({
                                      @SortDefault(sort = "created", direction = Sort.Direction.DESC)
                              }) Pageable pageable) {
-        return loanService.getLs(pageable);
+        return loanService.getLoans(pageable);
     }
 
     @PostMapping
@@ -37,7 +37,7 @@ public class LoanController {
     }
 
     @PutMapping("{id}")
-    public void update(@PathVariable Long id, @RequestBody LoanDTO loanDTO) {
+    public void update(@PathVariable Long id, @Valid @RequestBody LoanDTO loanDTO) {
         loanService.update(id, loanDTO);
     }
 

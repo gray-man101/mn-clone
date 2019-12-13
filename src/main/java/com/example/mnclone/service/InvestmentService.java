@@ -2,8 +2,8 @@ package com.example.mnclone.service;
 
 import com.example.mnclone.dto.InvestmentDTO;
 import com.example.mnclone.entity.Investment;
-import com.example.mnclone.entity.LoanStatus;
 import com.example.mnclone.entity.Loan;
+import com.example.mnclone.entity.LoanStatus;
 import com.example.mnclone.entity.User;
 import com.example.mnclone.exception.InsufficientFundsException;
 import com.example.mnclone.mapper.InvestmentDTOMapper;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Service
 public class InvestmentService {
@@ -40,13 +41,20 @@ public class InvestmentService {
         user.setBalance(newBalance);
         userRepository.save(user);
 
-        Investment investment = new Investment();
-        investment.setInvestor(user);
-        investment.setLoan(loan);
-        investmentRepository.save(investment);
+        createInvestment(user, loan);
 
         loan.setStatus(LoanStatus.IN_PROGRESS);
         loanRepository.save(loan);
+    }
+
+    private void createInvestment(User user, Loan loan) {
+        Investment investment = new Investment();
+        investment.setInvestor(user);
+        investment.setLoan(loan);
+        BigDecimal coefficient = BigDecimal.ONE.add(loan.getInvestorInterest()
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.DOWN));
+        investment.setAmountToReceive(loan.getAmount().multiply(coefficient));
+        investmentRepository.save(investment);
     }
 
     public Page<InvestmentDTO> getInvestments(Long investorId, Pageable pageable) {

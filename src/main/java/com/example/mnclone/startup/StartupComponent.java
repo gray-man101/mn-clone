@@ -39,13 +39,11 @@ public class StartupComponent {
         Loan loan1 = createLoan("John", BigDecimal.valueOf(1000));
         Loan loan2 = createLoan("Steve", BigDecimal.valueOf(1500));
         Loan loan3 = createLoan("Peter", BigDecimal.valueOf(2000));
-        loan1.setStatus(LoanStatus.IN_PROGRESS);
         loanRepository.save(loan1);
-        loan2.setStatus(LoanStatus.IN_PROGRESS);
         loanRepository.save(loan2);
 
-        createInvestment(loan1, user);
-        createInvestment(loan2, user);
+//        createInvestment(loan1, user);
+//        createInvestment(loan2, user);
 
         createPayment(BigDecimal.valueOf(100), loan2);
         createPayment(BigDecimal.valueOf(110), loan2);
@@ -67,8 +65,8 @@ public class StartupComponent {
         Loan loan = new Loan();
         loan.setDebtorName(name);
         loan.setAmount(amount);
-        loan.setAmountToReturn(amount.add(BigDecimal.valueOf(500)));
-        loan.setInvestorInterest(BigDecimal.valueOf(1.11));
+        loan.setAmountToReturn(amount.multiply(BigDecimal.valueOf(2)));
+        loan.setInvestorInterest(BigDecimal.valueOf(11));
         loan.setStatus(LoanStatus.NEW);
         loan.setCreated(ZonedDateTime.now());
         return loanRepository.save(loan);
