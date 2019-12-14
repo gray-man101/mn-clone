@@ -4,16 +4,22 @@ import com.example.mnclone.dto.RegistrationDTO;
 import com.example.mnclone.dto.validation.RegistrationDTOValidator;
 import com.example.mnclone.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 
 @RestController
 @PreAuthorize("isAnonymous()")
 @RequestMapping("/api/register")
 public class RegistrationController {
+
+    @Value("${app.home.url:http://localhost:8080/}")
+    private String homeUrl;
 
     private final UserService userService;
     private final RegistrationDTOValidator registrationDTOValidator;
@@ -35,9 +41,9 @@ public class RegistrationController {
     }
 
     @GetMapping
-    public void completeRegistration(@RequestParam String token) {
+    public void completeRegistration(@RequestParam String token, HttpServletResponse response) throws IOException {
         userService.completeRegistration(token);
-        //TODO maybe redirect
+        response.sendRedirect(this.homeUrl);
     }
 
 }
