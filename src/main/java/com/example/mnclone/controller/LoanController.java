@@ -1,6 +1,7 @@
 package com.example.mnclone.controller;
 
 import com.example.mnclone.dto.LoanDTO;
+import com.example.mnclone.dto.validation.LoanDTOValidator;
 import com.example.mnclone.service.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -19,8 +21,19 @@ import javax.validation.Valid;
 @RequestMapping("/api/loan")
 public class LoanController {
 
+    private final LoanService loanService;
+    private final LoanDTOValidator loanDTOValidator;
+
     @Autowired
-    private LoanService loanService;
+    public LoanController(LoanDTOValidator loanDTOValidator, LoanService loanService) {
+        this.loanDTOValidator = loanDTOValidator;
+        this.loanService = loanService;
+    }
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.addValidators(loanDTOValidator);
+    }
 
     @GetMapping
     public Page<LoanDTO> get(@PageableDefault(page = 0, size = 5)

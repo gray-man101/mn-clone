@@ -17,7 +17,7 @@ public class Payment {
     @GeneratedValue(generator = "payment_seq")
     private Long id;
     @Column(nullable = false)
-    @Min(1L)
+    @Min(10L)
     private BigDecimal amount;
     @Column(nullable = false)
     private ZonedDateTime created;

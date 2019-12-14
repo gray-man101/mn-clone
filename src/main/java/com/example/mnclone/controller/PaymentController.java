@@ -24,9 +24,9 @@ public class PaymentController {
     @GetMapping
     public Page<PaymentDTO> get(@PathVariable Long loanId,
                                 @PageableDefault(page = 0, size = 5)
-                                 @SortDefault.SortDefaults({
-                                         @SortDefault(sort = "created", direction = Sort.Direction.DESC)
-                                 }) Pageable pageable) {
+                                @SortDefault.SortDefaults({
+                                        @SortDefault(sort = "created", direction = Sort.Direction.DESC)
+                                }) Pageable pageable) {
         return paymentService.findPayments(loanId, pageable);
     }
 
