@@ -5,15 +5,17 @@ import com.swaperclone.entity.*;
 import com.swaperclone.exception.BadRequestException;
 import com.swaperclone.exception.NotFoundException;
 import com.swaperclone.mapper.PaymentDTOMapper;
+import com.swaperclone.model.InProgressLoanModel;
+import com.swaperclone.repository.InvestmentRepository;
 import com.swaperclone.repository.LoanRepository;
 import com.swaperclone.repository.PaymentRepository;
+import com.swaperclone.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 @Service
@@ -23,6 +25,10 @@ public class PaymentService {
     private PaymentRepository paymentRepository;
     @Autowired
     private LoanRepository loanRepository;
+    @Autowired
+    private InvestmentRepository investmentRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public Page<PaymentDTO> findPayments(Long loanId, Pageable pageable) {
         return paymentRepository.findByLoanId(loanId, pageable).map(PaymentDTOMapper::map);
@@ -30,18 +36,14 @@ public class PaymentService {
 
     @Transactional
     public void create(Long loanId, PaymentDTO paymentDTO) {
-        Loan loan = loanRepository.findById(loanId)
+        InProgressLoanModel loanModel = loanRepository.findLoanInProgress(loanId)
                 .orElseThrow(() -> new NotFoundException("Loan not found"));
-        if (loan.getStatus() != LoanStatus.IN_PROGRESS) {
-            throw new BadRequestException(String.format("Cannot add payments to loans in status other than %s", LoanStatus.IN_PROGRESS));
-        }
-
-        BigDecimal currentPaidSum = paymentRepository.sumPayments(loanId);
-        if (currentPaidSum.add(paymentDTO.getAmount()).compareTo(loan.getAmountToReturn()) > 0) {
+        if (loanModel.getPaidAmount().add(paymentDTO.getAmount()).compareTo(loanModel.getAmountToReturn()) > 0) {
             throw new BadRequestException("Payment sum exceeds loan amount to return");
         }
 
-        if (currentPaidSum.add(paymentDTO.getAmount()).compareTo(loan.getAmountToReturn()) == 0) {
+        Loan loan = loanRepository.getOne(loanId);
+        if (loanModel.getPaidAmount().add(paymentDTO.getAmount()).compareTo(loanModel.getAmountToReturn()) == 0) {
             finalizeLoan(loan);
         }
 
@@ -53,22 +55,29 @@ public class PaymentService {
     }
 
     private void finalizeLoan(Loan loan) {
-        Investment investment = loan.getInvestment();
+        Investment investment = investmentRepository.findByLoanId(loan.getId())
+                .orElseThrow(() -> new NotFoundException("Investment not found"));
         User investor = investment.getInvestor();
         investor.setBalance(investor.getBalance().add(investment.getAmountToReceive()));
+        userRepository.save(investor);
         loan.setStatus(LoanStatus.COMPLETE);
         loanRepository.save(loan);
     }
 
+    @Transactional
     public void update(Long loanId, Long id, PaymentDTO paymentDTO) {
-        Payment payment = paymentRepository.getOne(id);
-        payment.setAmount(paymentDTO.getAmount());
-        payment.setLoan(loanRepository.getOne(loanId));
-        paymentRepository.save(payment);
+        int updatedObjects = paymentRepository.updatePaymentAmount(id, loanId, paymentDTO.getAmount());
+        if (updatedObjects < 1) {
+            throw new NotFoundException(String.format("Payment %d not found for loan %d", id, loanId));
+        }
     }
 
+    @Transactional
     public void delete(Long loanId, Long id) {
-        paymentRepository.deletePayment(id, loanId);
+        int deletedObjects = paymentRepository.deletePayment(id, loanId);
+        if (deletedObjects < 1) {
+            throw new NotFoundException(String.format("Payment %d for loan %d not found", id, loanId));
+        }
     }
 
 }

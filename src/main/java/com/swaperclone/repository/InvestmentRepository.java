@@ -8,10 +8,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface InvestmentRepository extends JpaRepository<Investment, Long> {
 
-    @Query("select i from Investment i where i.investor.id=:userId order by i.loan.created desc")
-    Page<Investment> findByUserId(@Param("userId") Long userId, Pageable pageable);
+    Optional<Investment> findByLoanId(Long loanId);
 
     @Query("select i.id as id, i.amountToReceive as amountToReceive, l.debtorName as debtorName, " +
             "   l.amount as amount, count(p.id) as payments, coalesce(sum(p.amount), 0) as paidAmount " +

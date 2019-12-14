@@ -34,7 +34,7 @@ public class InvestmentService {
     public void invest(Long investorId, Long loanId) {
         User user = userRepository.findRegisteredById(investorId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
-        Loan loan = loanRepository.findNewLoanById(loanId)
+        Loan loan = loanRepository.findNewLoan(loanId)
                 .orElseThrow(() -> new NotFoundException("Loan not found"));
 
         BigDecimal newBalance = user.getBalance().subtract(loan.getAmount());

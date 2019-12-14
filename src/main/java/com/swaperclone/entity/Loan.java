@@ -37,9 +37,7 @@ public class Loan {
     private LoanStatus status;
     @Column(nullable = false)
     private ZonedDateTime created;
-    @OneToMany(mappedBy = "loan")
+    @OneToMany(mappedBy = "loan", fetch = FetchType.LAZY)
     private List<Payment> payments;
-    @OneToOne(mappedBy = "loan")
-    private Investment investment;
 
 }

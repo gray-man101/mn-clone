@@ -21,7 +21,7 @@ public class Payment {
     private BigDecimal amount;
     @Column(nullable = false)
     private ZonedDateTime created;
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Loan loan;
 
 }

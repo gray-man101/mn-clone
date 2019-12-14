@@ -7,6 +7,7 @@ import com.swaperclone.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -17,11 +18,10 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private EmailService emailService;
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public void register(RegistrationDTO registrationDTO) {
+    @Transactional
+    public String register(RegistrationDTO registrationDTO) {
         User user = new User();
         String registrationToken = UUID.randomUUID().toString();
         user.setEmail(registrationDTO.getEmail());
@@ -32,14 +32,15 @@ public class UserService {
         user.setRegistered(false);
         user.setRegistrationToken(registrationToken);
         userRepository.save(user);
-        emailService.sendWelcomeEmail(registrationDTO.getEmail(), registrationToken);
+        return registrationToken;
     }
 
+    @Transactional
     public void completeRegistration(String token) {
-        User user = userRepository.findByRegistrationToken(token)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-        user.setRegistered(true);
-        userRepository.save(user);
+        int updatedObjects = userRepository.markUserAsRegistered(token);
+        if (updatedObjects < 1) {
+            throw new NotFoundException(String.format("User with token %s not found", token));
+        }
     }
 
 }

@@ -4,13 +4,12 @@ import com.swaperclone.dto.LoanDTO;
 import com.swaperclone.entity.Loan;
 import com.swaperclone.entity.LoanStatus;
 import com.swaperclone.entity.User;
-import com.swaperclone.exception.BadRequestException;
 import com.swaperclone.exception.NotFoundException;
 import com.swaperclone.info.FailedLoanInfo;
 import com.swaperclone.mapper.AvailableLoanDTOMapper;
 import com.swaperclone.mapper.LoanDTOMapper;
+import com.swaperclone.model.InProgressLoanModel;
 import com.swaperclone.repository.LoanRepository;
-import com.swaperclone.repository.PaymentRepository;
 import com.swaperclone.repository.UserRepository;
 import com.swaperclone.util.ReturnAmountCalculationUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +29,6 @@ public class LoanService {
     @Autowired
     private LoanRepository loanRepository;
     @Autowired
-    private PaymentRepository paymentRepository;
-    @Autowired
     private UserRepository userRepository;
 
     public Page<LoanDTO> getLoans(Pageable pageable) {
@@ -42,6 +39,7 @@ public class LoanService {
         return loanRepository.findNewLoans(pageable).map(AvailableLoanDTOMapper::map);
     }
 
+    @Transactional
     public void create(LoanDTO loanDTO) {
         Loan loan = new Loan();
         loan.setDebtorName(loanDTO.getDebtorName());
@@ -53,12 +51,10 @@ public class LoanService {
         loanRepository.save(loan);
     }
 
+    @Transactional
     public void update(Long id, LoanDTO loanDTO) {
-        Loan loan = loanRepository.findById(id)
+        Loan loan = loanRepository.findNewLoan(id)
                 .orElseThrow(() -> new NotFoundException("Loan not found"));
-        if (loan.getStatus() != LoanStatus.NEW) {
-            throw new BadRequestException(String.format("Cannot update loan in status other than %s", LoanStatus.NEW));
-        }
         loan.setDebtorName(loanDTO.getDebtorName());
         loan.setAmount(loanDTO.getAmount());
         loan.setAmountToReturn(loanDTO.getAmountToReturn());
@@ -66,40 +62,30 @@ public class LoanService {
         loanRepository.save(loan);
     }
 
+    @Transactional
     public void delete(Long id) {
-        Loan loan = loanRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Loan not found"));
-        if (loan.getStatus() != LoanStatus.NEW) {
-            throw new BadRequestException(String.format("Cannot delete loan in status other than %s", LoanStatus.NEW));
+        int deletedObjects = loanRepository.deleteNewLoan(id);
+        if (deletedObjects < 1) {
+            throw new NotFoundException(String.format("Loan %d in status %s not found", id, LoanStatus.NEW));
         }
-        loanRepository.deleteById(id);
     }
 
     @Transactional
     public FailedLoanInfo setFailedStatus(Long id) {
-        Loan loan = loanRepository.findById(id)
+        InProgressLoanModel inProgressLoanModel = loanRepository.findLoanInProgress(id)
                 .orElseThrow(() -> new NotFoundException("Loan not found"));
-        if (loan.getStatus() != LoanStatus.IN_PROGRESS) {
-            throw new BadRequestException(String.format("Cannot set loan status to %s to one in status %s",
-                    LoanStatus.FAILED, loan.getStatus()));
-        }
-
-        FailedLoanInfo result = refundInvestorPartly(loan);
-
-        loan.setStatus(LoanStatus.FAILED);
-        loanRepository.save(loan);
+        FailedLoanInfo result = refundInvestorPartly(inProgressLoanModel);
+        loanRepository.updateLoanStatusToFailed(id);
 
         return result;
     }
 
-    private FailedLoanInfo refundInvestorPartly(Loan loan) {
-        BigDecimal paidAmount = paymentRepository.sumPayments(loan.getId());
-
-        BigDecimal sumToReturnToInvestor = ReturnAmountCalculationUtils.calculatePartialRefundAmount(paidAmount,
-                loan.getAmount(), loan.getAmountToReturn(), loan.getInvestorInterest());
+    private FailedLoanInfo refundInvestorPartly(InProgressLoanModel model) {
+        BigDecimal sumToReturnToInvestor = ReturnAmountCalculationUtils.calculatePartialRefundAmount(model.getPaidAmount(),
+                model.getAmount(), model.getAmountToReturn(), model.getInvestorInterest());
         log.info(String.format("Partial refund to investor - %.2f. The rest %.2f is being transferred to company",
-                sumToReturnToInvestor, paidAmount.subtract(sumToReturnToInvestor)));
-        User investor = loan.getInvestment().getInvestor();
+                sumToReturnToInvestor, model.getPaidAmount().subtract(sumToReturnToInvestor)));
+        User investor = userRepository.getOne(model.getInvestorId());
         investor.setBalance(investor.getBalance().add(sumToReturnToInvestor));
         userRepository.save(investor);
 

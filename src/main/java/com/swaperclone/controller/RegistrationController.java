@@ -2,6 +2,7 @@ package com.swaperclone.controller;
 
 import com.swaperclone.dto.RegistrationDTO;
 import com.swaperclone.dto.validation.RegistrationDTOValidator;
+import com.swaperclone.service.EmailService;
 import com.swaperclone.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,11 +24,14 @@ public class RegistrationController {
 
     private final UserService userService;
     private final RegistrationDTOValidator registrationDTOValidator;
+    private final EmailService emailService;
 
     @Autowired
-    public RegistrationController(UserService userService, RegistrationDTOValidator registrationDTOValidator) {
+    public RegistrationController(UserService userService, RegistrationDTOValidator registrationDTOValidator,
+                                  EmailService emailService) {
         this.userService = userService;
         this.registrationDTOValidator = registrationDTOValidator;
+        this.emailService = emailService;
     }
 
     @InitBinder
@@ -37,7 +41,8 @@ public class RegistrationController {
 
     @PostMapping
     public void register(@Valid @RequestBody RegistrationDTO registrationDTO) {
-        userService.register(registrationDTO);
+        String registrationToken = userService.register(registrationDTO);
+        emailService.sendWelcomeEmail(registrationDTO.getEmail(), registrationToken);
     }
 
     @GetMapping
