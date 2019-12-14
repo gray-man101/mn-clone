@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 
 @Data
@@ -26,6 +27,7 @@ public class User {
     @Column(nullable = false)
     private String lastName;
     @Column(nullable = false)
+    @Min(0)
     private BigDecimal balance;
     @Column(nullable = false)
     private Boolean registered;
