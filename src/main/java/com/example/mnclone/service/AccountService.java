@@ -37,7 +37,7 @@ public class AccountService {
         User user = userRepository.findRegisteredById(customerId).orElseThrow(RuntimeException::new);
         BigDecimal newBalance = user.getBalance().subtract(amount);
         if (BigDecimal.ZERO.compareTo(newBalance) > 0) {
-            throw new InsufficientFundsException();
+            throw new InsufficientFundsException("Not enough funds to withdraw");
         }
         user.setBalance(newBalance);
         userRepository.save(user);

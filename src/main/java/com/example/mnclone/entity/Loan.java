@@ -34,5 +34,7 @@ public class Loan {
     private ZonedDateTime created;
     @OneToMany(mappedBy = "loan")
     private List<Payment> payments;
+    @OneToOne
+    private Investment investment;
 
 }

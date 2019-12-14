@@ -36,7 +36,7 @@ public class InvestmentService {
 
         BigDecimal newBalance = user.getBalance().subtract(loan.getAmount());
         if (BigDecimal.ZERO.compareTo(newBalance) > 0) {
-            throw new InsufficientFundsException();
+            throw new InsufficientFundsException("Not enough funds to invest");
         }
         user.setBalance(newBalance);
         userRepository.save(user);

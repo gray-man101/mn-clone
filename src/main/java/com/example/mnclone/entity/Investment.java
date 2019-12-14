@@ -18,7 +18,7 @@ public class Investment {
     private BigDecimal amountToReceive;
     @ManyToOne(optional = false)
     private User investor;
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     private Loan loan;
 
 }

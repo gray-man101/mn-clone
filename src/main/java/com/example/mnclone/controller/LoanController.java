@@ -41,10 +41,14 @@ public class LoanController {
         loanService.update(id, loanDTO);
     }
 
+    @PostMapping("{id}/fail")
+    public void setFailedStatus(@PathVariable Long id) {
+        loanService.setFailedStatus(id);
+    }
+
     @DeleteMapping("{id}")
     public void delete(@PathVariable Long id) {
         loanService.delete(id);
-        //TODO notify user
     }
 
 }
