@@ -18,8 +18,12 @@ import javax.validation.Valid;
 @RequestMapping("/api/loan/{loanId}/payment")
 public class PaymentController {
 
+    private final PaymentService paymentService;
+
     @Autowired
-    private PaymentService paymentService;
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
 
     @GetMapping
     public Page<PaymentDTO> get(@PathVariable Long loanId,

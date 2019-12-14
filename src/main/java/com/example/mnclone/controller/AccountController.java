@@ -15,8 +15,12 @@ import javax.validation.Valid;
 @RequestMapping("/api/account")
 public class AccountController {
 
+    private final AccountService accountService;
+
     @Autowired
-    private AccountService accountService;
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
+    }
 
     @GetMapping
     public AccountInfoDTO getAccountInfo(MnCloneAuthenticationToken auth) {

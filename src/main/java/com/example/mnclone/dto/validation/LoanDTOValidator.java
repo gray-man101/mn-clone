@@ -1,7 +1,6 @@
 package com.example.mnclone.dto.validation;
 
 import com.example.mnclone.dto.LoanDTO;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -10,7 +9,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Component
-@Qualifier("loanDTOValidator")
 public class LoanDTOValidator implements Validator {
 
     @Override

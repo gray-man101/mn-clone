@@ -1,5 +1,6 @@
-package com.example.mnclone.controller;
+package com.example.mnclone.config;
 
+import com.example.mnclone.exception.SwaperCloneException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
@@ -31,7 +32,9 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
     public Map<String, Object> getErrorAttributes(WebRequest webRequest, boolean includeStackTrace) {
         Throwable e = getError(webRequest);
         Map<String, Object> errorAttributes = super.getErrorAttributes(webRequest, includeStackTrace);
-        if (e instanceof MethodArgumentNotValidException) {
+        if (e instanceof SwaperCloneException) {
+            return errorAttributes;
+        } else if (e instanceof MethodArgumentNotValidException) {
             errorAttributes.put("message", ((MethodArgumentNotValidException) e).getBindingResult()
                     .getAllErrors()
                     .stream()

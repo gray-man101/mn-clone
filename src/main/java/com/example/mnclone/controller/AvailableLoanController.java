@@ -18,8 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/availableLoan")
 public class AvailableLoanController {
 
+    private final LoanService loanService;
+
     @Autowired
-    private LoanService loanService;
+    public AvailableLoanController(LoanService loanService) {
+        this.loanService = loanService;
+    }
 
     @GetMapping
     public Page<LoanDTO> getAvailableLoans(@PageableDefault(page = 0, size = 5)

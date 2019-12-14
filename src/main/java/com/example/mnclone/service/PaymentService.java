@@ -32,7 +32,8 @@ public class PaymentService {
 
     @Transactional
     public void create(Long loanId, PaymentDTO paymentDTO) {
-        Loan loan = loanRepository.findById(loanId).orElseThrow(NotFoundException::new);
+        Loan loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new NotFoundException("Loan not found"));
         if (loan.getStatus() != LoanStatus.IN_PROGRESS) {
             throw new BadRequestException(String.format("Cannot add payments to loans in status other than %s", LoanStatus.IN_PROGRESS));
         }

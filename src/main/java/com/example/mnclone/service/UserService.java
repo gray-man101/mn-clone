@@ -36,7 +36,8 @@ public class UserService {
     }
 
     public void completeRegistration(String token) {
-        User user = userRepository.findByRegistrationToken(token).orElseThrow(NotFoundException::new);
+        User user = userRepository.findByRegistrationToken(token)
+                .orElseThrow(() -> new NotFoundException("User not found"));
         user.setRegistered(true);
         userRepository.save(user);
     }

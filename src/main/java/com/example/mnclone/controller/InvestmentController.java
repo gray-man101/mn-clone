@@ -15,8 +15,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/investment")
 public class InvestmentController {
 
+    private final InvestmentService investmentService;
+
     @Autowired
-    private InvestmentService investmentService;
+    public InvestmentController(InvestmentService investmentService) {
+        this.investmentService = investmentService;
+    }
 
     @GetMapping
     public Page<InvestmentDTO> getInvestments(MnCloneAuthenticationToken auth, @PageableDefault(page = 0, size = 5) Pageable pageable) {

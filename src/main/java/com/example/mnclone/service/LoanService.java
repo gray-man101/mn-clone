@@ -53,7 +53,8 @@ public class LoanService {
     }
 
     public void update(Long id, LoanDTO loanDTO) {
-        Loan loan = loanRepository.findById(id).orElseThrow(NotFoundException::new);
+        Loan loan = loanRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Loan not found"));
         if (loan.getStatus() != LoanStatus.NEW) {
             throw new BadRequestException(String.format("Cannot update loan in status other than %s", LoanStatus.NEW));
         }
@@ -65,7 +66,8 @@ public class LoanService {
     }
 
     public void delete(Long id) {
-        Loan loan = loanRepository.findById(id).orElseThrow(NotFoundException::new);
+        Loan loan = loanRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Loan not found"));
         if (loan.getStatus() != LoanStatus.NEW) {
             throw new BadRequestException(String.format("Cannot delete loan in status other than %s", LoanStatus.NEW));
         }
@@ -74,7 +76,8 @@ public class LoanService {
 
     @Transactional
     public void setFailedStatus(Long id) {
-        Loan loan = loanRepository.findById(id).orElseThrow(NotFoundException::new);
+        Loan loan = loanRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Loan not found"));
         if (loan.getStatus() != LoanStatus.NEW) {
             throw new BadRequestException(String.format("Cannot set loan status to %s to one in status %s",
                     LoanStatus.FAILED, loan.getStatus()));
