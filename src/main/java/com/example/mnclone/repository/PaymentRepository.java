@@ -18,6 +18,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("delete from Payment p where exists (select p1.id from Payment p1 where p1.id=:id and p1.loan.id=:loanId)")
     void deletePayment(@Param("id") Long id, @Param("loanId") Long loanId);
 
-    @Query("select sum(p.amount) from Payment p where p.loan.id=:loanId")
+    @Query("select coalesce(sum(p.amount), 0) from Payment p where p.loan.id=:loanId")
     BigDecimal sumPayments(@Param("loanId") Long loanId);
 }

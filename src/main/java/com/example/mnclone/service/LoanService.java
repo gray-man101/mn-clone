@@ -6,11 +6,13 @@ import com.example.mnclone.entity.LoanStatus;
 import com.example.mnclone.entity.User;
 import com.example.mnclone.exception.BadRequestException;
 import com.example.mnclone.exception.NotFoundException;
+import com.example.mnclone.info.FailedLoanInfo;
 import com.example.mnclone.mapper.AvailableLoanDTOMapper;
 import com.example.mnclone.mapper.LoanDTOMapper;
 import com.example.mnclone.repository.LoanRepository;
 import com.example.mnclone.repository.PaymentRepository;
 import com.example.mnclone.repository.UserRepository;
+import com.example.mnclone.util.ReturnAmountCalculationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.ZonedDateTime;
 
 @Service
@@ -75,30 +76,33 @@ public class LoanService {
     }
 
     @Transactional
-    public void setFailedStatus(Long id) {
+    public FailedLoanInfo setFailedStatus(Long id) {
         Loan loan = loanRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Loan not found"));
-        if (loan.getStatus() != LoanStatus.NEW) {
+        if (loan.getStatus() != LoanStatus.IN_PROGRESS) {
             throw new BadRequestException(String.format("Cannot set loan status to %s to one in status %s",
                     LoanStatus.FAILED, loan.getStatus()));
         }
 
-        refundInvestorPartly(loan);
+        FailedLoanInfo result = refundInvestorPartly(loan);
 
         loan.setStatus(LoanStatus.FAILED);
         loanRepository.save(loan);
+
+        return result;
     }
 
-    private void refundInvestorPartly(Loan loan) {
-        BigDecimal coefficient = loan.getAmount().multiply(loan.getInvestorInterest())
-                .divide(loan.getAmountToReturn(), 2, RoundingMode.DOWN);
+    private FailedLoanInfo refundInvestorPartly(Loan loan) {
         BigDecimal paidAmount = paymentRepository.sumPayments(loan.getId());
 
-        BigDecimal sumToReturnToInvestor = paidAmount.multiply(coefficient);
+        BigDecimal sumToReturnToInvestor = ReturnAmountCalculationUtils.calculatePartialRefundAmount(paidAmount,
+                loan.getAmount(), loan.getAmountToReturn(), loan.getInvestorInterest());
         log.info(String.format("Partial refund to investor - %f. The rest %f is being transferred to company",
                 sumToReturnToInvestor, paidAmount.subtract(sumToReturnToInvestor)));
         User investor = loan.getInvestment().getInvestor();
         investor.setBalance(investor.getBalance().add(sumToReturnToInvestor));
         userRepository.save(investor);
+
+        return new FailedLoanInfo(investor.getEmail(), sumToReturnToInvestor);
     }
 }

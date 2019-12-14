@@ -18,7 +18,7 @@ public interface InvestmentRepository extends JpaRepository<Investment, Long> {
             "from Investment i " +
             "join i.loan as l " +
             "left join l.payments as p " +
-            "where i.investor.id=:investorId " +
+            "where i.investor.id=:investorId and l.status=com.example.mnclone.entity.LoanStatus.IN_PROGRESS " +
             "group by i.id")
     Page<InvestmentStatusModel> findInvestmentStatuses(@Param("investorId") Long investorId, Pageable pageable);
 

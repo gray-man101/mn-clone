@@ -10,6 +10,7 @@ import com.example.mnclone.mapper.InvestmentDTOMapper;
 import com.example.mnclone.repository.InvestmentRepository;
 import com.example.mnclone.repository.LoanRepository;
 import com.example.mnclone.repository.UserRepository;
+import com.example.mnclone.util.ReturnAmountCalculationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 @Service
 public class InvestmentService {
@@ -51,9 +51,8 @@ public class InvestmentService {
         Investment investment = new Investment();
         investment.setInvestor(user);
         investment.setLoan(loan);
-        BigDecimal coefficient = BigDecimal.ONE.add(loan.getInvestorInterest()
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.DOWN));
-        investment.setAmountToReceive(loan.getAmount().multiply(coefficient));
+        investment.setAmountToReceive(ReturnAmountCalculationUtils.calculateInvestorReturnAmount(loan.getAmount(),
+                loan.getInvestorInterest()));
         investmentRepository.save(investment);
     }
 

@@ -1,9 +1,7 @@
 package com.example.mnclone.service;
 
 import com.example.mnclone.dto.PaymentDTO;
-import com.example.mnclone.entity.Loan;
-import com.example.mnclone.entity.LoanStatus;
-import com.example.mnclone.entity.Payment;
+import com.example.mnclone.entity.*;
 import com.example.mnclone.exception.BadRequestException;
 import com.example.mnclone.exception.NotFoundException;
 import com.example.mnclone.mapper.PaymentDTOMapper;
@@ -44,8 +42,7 @@ public class PaymentService {
         }
 
         if (currentPaidSum.add(paymentDTO.getAmount()).compareTo(loan.getAmountToReturn()) == 0) {
-            loan.setStatus(LoanStatus.COMPLETE);
-            loanRepository.save(loan);
+            finalizeLoan(loan);
         }
 
         Payment payment = new Payment();
@@ -53,6 +50,14 @@ public class PaymentService {
         payment.setLoan(loan);
         payment.setCreated(ZonedDateTime.now());
         paymentRepository.save(payment);
+    }
+
+    private void finalizeLoan(Loan loan) {
+        Investment investment = loan.getInvestment();
+        User investor = investment.getInvestor();
+        investor.setBalance(investor.getBalance().add(investment.getAmountToReceive()));
+        loan.setStatus(LoanStatus.COMPLETE);
+        loanRepository.save(loan);
     }
 
     public void update(Long loanId, Long id, PaymentDTO paymentDTO) {

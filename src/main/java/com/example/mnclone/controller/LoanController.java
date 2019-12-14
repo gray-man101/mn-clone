@@ -2,6 +2,8 @@ package com.example.mnclone.controller;
 
 import com.example.mnclone.dto.LoanDTO;
 import com.example.mnclone.dto.validation.LoanDTOValidator;
+import com.example.mnclone.info.FailedLoanInfo;
+import com.example.mnclone.service.EmailService;
 import com.example.mnclone.service.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,11 +25,13 @@ public class LoanController {
 
     private final LoanService loanService;
     private final LoanDTOValidator loanDTOValidator;
+    private final EmailService emailService;
 
     @Autowired
-    public LoanController(LoanDTOValidator loanDTOValidator, LoanService loanService) {
+    public LoanController(LoanDTOValidator loanDTOValidator, LoanService loanService, EmailService emailService) {
         this.loanDTOValidator = loanDTOValidator;
         this.loanService = loanService;
+        this.emailService = emailService;
     }
 
     @InitBinder
@@ -56,7 +60,8 @@ public class LoanController {
 
     @PostMapping("{id}/fail")
     public void setFailedStatus(@PathVariable Long id) {
-        loanService.setFailedStatus(id);
+        FailedLoanInfo result = loanService.setFailedStatus(id);
+        emailService.notifyCustomerAboutPartialRefund(result.getInvestorEmail(), result.getPartialRefundAmount());
     }
 
     @DeleteMapping("{id}")
