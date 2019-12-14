@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 @Component
-public class SwCloneAuthenticationProvider implements AuthenticationProvider {
+public class SwaperCloneAuthenticationProvider implements AuthenticationProvider {
 
     @Value("${admin.username}")
     private String adminUserName;

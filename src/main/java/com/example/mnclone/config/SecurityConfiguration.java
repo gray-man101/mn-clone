@@ -22,7 +22,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private SwCloneAuthenticationProvider swCloneAuthenticationProvider;
+    private SwaperCloneAuthenticationProvider authenticationProvider;
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
@@ -45,14 +45,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedHeaders("*").allowedMethods("*").allowCredentials(true);
+                registry.addMapping("/**")
+                        .allowedHeaders("*")
+                        .allowedMethods("*")
+                        .allowCredentials(true);
             }
         };
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(swCloneAuthenticationProvider);
+        auth.authenticationProvider(authenticationProvider);
     }
 
     @Bean
