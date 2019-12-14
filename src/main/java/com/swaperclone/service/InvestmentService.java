@@ -6,6 +6,7 @@ import com.swaperclone.entity.Loan;
 import com.swaperclone.entity.LoanStatus;
 import com.swaperclone.entity.User;
 import com.swaperclone.exception.InsufficientFundsException;
+import com.swaperclone.exception.NotFoundException;
 import com.swaperclone.mapper.InvestmentDTOMapper;
 import com.swaperclone.repository.InvestmentRepository;
 import com.swaperclone.repository.LoanRepository;
@@ -31,8 +32,10 @@ public class InvestmentService {
 
     @Transactional
     public void invest(Long investorId, Long loanId) {
-        User user = userRepository.findRegisteredById(investorId).orElseThrow(RuntimeException::new);
-        Loan loan = loanRepository.findNewLoanById(loanId).orElseThrow(RuntimeException::new);
+        User user = userRepository.findRegisteredById(investorId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        Loan loan = loanRepository.findNewLoanById(loanId)
+                .orElseThrow(() -> new NotFoundException("Loan not found"));
 
         BigDecimal newBalance = user.getBalance().subtract(loan.getAmount());
         if (BigDecimal.ZERO.compareTo(newBalance) > 0) {

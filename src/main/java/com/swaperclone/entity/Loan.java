@@ -14,7 +14,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = "payments")
+@ToString(exclude = {"payments", "investment"})
 @Entity
 @Check(constraints = "amount_to_return > amount and amount_to_return > amount*(investor_interest/100)")
 public class Loan {
@@ -39,7 +39,7 @@ public class Loan {
     private ZonedDateTime created;
     @OneToMany(mappedBy = "loan")
     private List<Payment> payments;
-    @OneToOne
+    @OneToOne(mappedBy = "loan")
     private Investment investment;
 
 }

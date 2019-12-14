@@ -97,7 +97,7 @@ public class LoanService {
 
         BigDecimal sumToReturnToInvestor = ReturnAmountCalculationUtils.calculatePartialRefundAmount(paidAmount,
                 loan.getAmount(), loan.getAmountToReturn(), loan.getInvestorInterest());
-        log.info(String.format("Partial refund to investor - %f. The rest %f is being transferred to company",
+        log.info(String.format("Partial refund to investor - %.2f. The rest %.2f is being transferred to company",
                 sumToReturnToInvestor, paidAmount.subtract(sumToReturnToInvestor)));
         User investor = loan.getInvestment().getInvestor();
         investor.setBalance(investor.getBalance().add(sumToReturnToInvestor));

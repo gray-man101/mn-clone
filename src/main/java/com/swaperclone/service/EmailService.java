@@ -19,7 +19,7 @@ public class EmailService {
     }
 
     public void notifyCustomerAboutPartialRefund(String to, BigDecimal amount) {
-        sendEmail(to, "Partial refund", String.format("You have receive partial refund in the amount of %f due " +
+        sendEmail(to, "Partial refund", String.format("You have receive partial refund in the amount of %.2f due " +
                 "to failed loan status.", amount));
     }
 
