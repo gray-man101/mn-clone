@@ -14,7 +14,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = {"payments", "investment"})
+@ToString(exclude = {"payments"})
 @Entity
 @Check(constraints = "amount_to_return > amount and amount_to_return > amount*(investor_interest/100)")
 public class Loan {

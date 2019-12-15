@@ -66,7 +66,7 @@ public class PaymentService {
 
     @Transactional
     public void update(Long loanId, Long id, PaymentDTO paymentDTO) {
-        int updatedObjects = paymentRepository.updatePaymentAmount(id, loanId, paymentDTO.getAmount());
+        int updatedObjects = paymentRepository.updatePaymentAmount(loanId, id, paymentDTO.getAmount());
         if (updatedObjects < 1) {
             throw new NotFoundException(String.format("Payment %d not found for loan %d", id, loanId));
         }
@@ -74,7 +74,7 @@ public class PaymentService {
 
     @Transactional
     public void delete(Long loanId, Long id) {
-        int deletedObjects = paymentRepository.deletePayment(id, loanId);
+        int deletedObjects = paymentRepository.deletePayment(loanId, id);
         if (deletedObjects < 1) {
             throw new NotFoundException(String.format("Payment %d for loan %d not found", id, loanId));
         }
