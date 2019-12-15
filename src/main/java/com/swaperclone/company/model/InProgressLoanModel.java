@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 
 public interface InProgressLoanModel {
 
-    Long getLoanId();
-
     BigDecimal getAmount();
 
     BigDecimal getAmountToReturn();
