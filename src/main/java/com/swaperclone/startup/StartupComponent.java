@@ -1,10 +1,10 @@
 package com.swaperclone.startup;
 
-import com.swaperclone.entity.*;
-import com.swaperclone.repository.InvestmentRepository;
-import com.swaperclone.repository.LoanRepository;
-import com.swaperclone.repository.PaymentRepository;
-import com.swaperclone.repository.UserRepository;
+import com.swaperclone.common.entity.*;
+import com.swaperclone.common.repository.InvestmentRepository;
+import com.swaperclone.common.repository.LoanRepository;
+import com.swaperclone.common.repository.PaymentRepository;
+import com.swaperclone.common.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;

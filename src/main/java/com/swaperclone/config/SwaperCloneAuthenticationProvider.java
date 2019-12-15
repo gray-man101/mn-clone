@@ -1,7 +1,7 @@
 package com.swaperclone.config;
 
-import com.swaperclone.entity.User;
-import com.swaperclone.repository.UserRepository;
+import com.swaperclone.common.entity.User;
+import com.swaperclone.common.repository.UserRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

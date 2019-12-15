@@ -1,6 +1,6 @@
 package com.swaperclone.config;
 
-import com.swaperclone.exception.SwaperCloneException;
+import com.swaperclone.common.exception.SwaperCloneException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
