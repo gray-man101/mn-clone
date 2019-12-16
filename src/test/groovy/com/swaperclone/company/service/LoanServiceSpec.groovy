@@ -34,17 +34,18 @@ class LoanServiceSpec extends Specification {
         then:
         result.totalPages == 1
         result.content.size() == 2
-        result.content[i].id == id
-        result.content[i].amount == amount
-        result.content[i].amountToReturn == amountToReturn
-        result.content[i].investorInterest == investorInterest
-        result.content[i].status == status
-        result.content[i].debtorName == debtorName
-
-        where:
-        i | id | amount                   | amountToReturn           | investorInterest       | status                 | debtorName
-        0 | 1L | BigDecimal.valueOf(1000) | BigDecimal.valueOf(2000) | BigDecimal.valueOf(11) | LoanStatus.NEW         | 'John'
-        1 | 2L | BigDecimal.valueOf(1500) | BigDecimal.valueOf(3000) | BigDecimal.valueOf(12) | LoanStatus.IN_PROGRESS | 'Steve'
+        result.content[0].id == 1L
+        result.content[0].amount == BigDecimal.valueOf(1000)
+        result.content[0].amountToReturn == BigDecimal.valueOf(2000)
+        result.content[0].investorInterest == BigDecimal.valueOf(11)
+        result.content[0].status == LoanStatus.NEW
+        result.content[0].debtorName == 'John'
+        result.content[1].id == 2L
+        result.content[1].amount == BigDecimal.valueOf(1500)
+        result.content[1].amountToReturn == BigDecimal.valueOf(3000)
+        result.content[1].investorInterest == BigDecimal.valueOf(12)
+        result.content[1].status == LoanStatus.IN_PROGRESS
+        result.content[1].debtorName == 'Steve'
     }
 
     void "test getAvailableLoans()"() {
@@ -60,17 +61,18 @@ class LoanServiceSpec extends Specification {
         then:
         result.totalPages == 1
         result.content.size() == 2
-        result.content[i].id == id
-        result.content[i].amount == amount
-        result.content[i].amountToReturn == null
-        result.content[i].investorInterest == investorInterest
-        result.content[i].status == status
-        result.content[i].debtorName == debtorName
-
-        where:
-        i | id | amount                   | investorInterest       | status         | debtorName
-        0 | 1L | BigDecimal.valueOf(1000) | BigDecimal.valueOf(11) | LoanStatus.NEW | 'John'
-        1 | 2L | BigDecimal.valueOf(1500) | BigDecimal.valueOf(12) | LoanStatus.NEW | 'Steve'
+        result.content[0].id == 1L
+        result.content[0].amount == BigDecimal.valueOf(1000)
+        result.content[0].amountToReturn == null
+        result.content[0].investorInterest == BigDecimal.valueOf(11)
+        result.content[0].status == LoanStatus.NEW
+        result.content[0].debtorName == 'John'
+        result.content[1].id == 2L
+        result.content[1].amount == BigDecimal.valueOf(1500)
+        result.content[1].amountToReturn == null
+        result.content[1].investorInterest == BigDecimal.valueOf(12)
+        result.content[1].status == LoanStatus.NEW
+        result.content[1].debtorName == 'Steve'
     }
 
     void "test create"() {

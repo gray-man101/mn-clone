@@ -18,7 +18,7 @@ class FirstE2ESpec extends Specification {
     def "test ccc"() {
         given:
         RestAssured.when().get("/api/register?token=123")
-                .then().statusCode(200)
+                .then().statusCode(404)
 //        mvc.perform(MockMvcRequestBuilders.get("/api/register"))
 //                .andExpect(status().isOk())
         when:

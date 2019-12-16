@@ -14,6 +14,11 @@ import org.springframework.web.context.request.WebRequest;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * The aim of this class is to:
+ * - provide a standard response to the API consumer in case of errors
+ * - log errors that should be monitored
+ */
 @Component
 @Slf4j
 public class CustomErrorAttributes extends DefaultErrorAttributes {

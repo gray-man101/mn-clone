@@ -11,8 +11,6 @@ public interface InvestmentStatusModel {
 
     BigDecimal getAmountToReceive();
 
-    BigDecimal getInterest();
-
     Integer getPayments();
 
     BigDecimal getPaidAmount();

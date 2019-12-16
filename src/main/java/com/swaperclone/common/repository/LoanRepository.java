@@ -34,5 +34,5 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
 
     @Modifying
     @Query("update Loan l set l.status=com.swaperclone.common.entity.LoanStatus.FAILED where l.id=:id")
-    void updateLoanStatusToFailed(@Param("id") Long id);
+    int updateLoanStatusToFailed(@Param("id") Long id);
 }

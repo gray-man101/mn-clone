@@ -14,16 +14,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findRegisteredById(@Param("id") Long id);
 
     @Query("select u from User u where u.email=:email and u.registered=true")
-    Optional<User> findByEmail(@Param("email") String email);
-
-    @Query("select u from User u where u.registered=false and u.registrationToken=:token")
-    Optional<User> findByRegistrationToken(@Param("token") String token);
-
-    @Query("select i.investor from Investment i where i.loan.id=:loanId")
-    Optional<User> findInvestorByLoanId(@Param("loanId") Long loanId);
+    Optional<User> findRegisteredByEmail(@Param("email") String email);
 
     @Modifying
-    @Query("update User u set u.registered=true where u.registrationToken=:token")
+    @Query("update User u set u.registered=true where u.registrationToken=:token and u.registered=false")
     int markUserAsRegistered(@Param("token") String token);
 
 }
