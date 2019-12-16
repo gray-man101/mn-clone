@@ -6,12 +6,13 @@ import spock.lang.Specification
 
 class RegistrationDTOValidatorSpec extends Specification {
 
+    RegistrationDTOValidator validator = new RegistrationDTOValidator()
+    Errors errors = Mock(Errors)
+
     void "test validate"() {
         given:
-        RegistrationDTOValidator validator = new RegistrationDTOValidator()
         RegistrationDTO samePasswords = new RegistrationDTO(password: '123', passwordRepeat: '123')
         RegistrationDTO differentPasswords = new RegistrationDTO(password: '123', passwordRepeat: '456')
-        Errors errors = Mock(Errors)
 
         when:
         validator.validate(differentPasswords, errors)

@@ -1,5 +1,6 @@
 package com.swaperclone.company.service
 
+import com.swaperclone.UnitTestSpec
 import com.swaperclone.common.entity.*
 import com.swaperclone.common.exception.NotFoundException
 import com.swaperclone.common.repository.InvestmentRepository
@@ -7,18 +8,16 @@ import com.swaperclone.common.repository.LoanRepository
 import com.swaperclone.common.repository.PaymentRepository
 import com.swaperclone.common.repository.UserRepository
 import com.swaperclone.company.dto.PaymentDTO
-import com.swaperclone.company.model.InProgressLoanModel
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
-import spock.lang.Specification
 
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-class PaymentServiceSpec extends Specification {
+class PaymentServiceSpec extends UnitTestSpec {
 
     private PaymentRepository paymentRepository = Mock(PaymentRepository)
     private LoanRepository loanRepository = Mock(LoanRepository)
@@ -30,7 +29,7 @@ class PaymentServiceSpec extends Specification {
     void "test findPayments"() {
         given:
         ZonedDateTime created = ZonedDateTime.of(LocalDate.of(2019, 12, 15), LocalTime.MIN, ZoneId.systemDefault())
-        paymentRepository.findByLoanId(1L, _ as Pageable) >> new PageImpl<Loan>([
+        paymentRepository.findByLoanId(1L, _ as Pageable) >> new PageImpl<Payment>([
                 preparePayment(id: 10L, amount: BigDecimal.valueOf(100L), created: created),
                 preparePayment(id: 11L, amount: BigDecimal.valueOf(120L), created: created)
         ])
@@ -130,19 +129,5 @@ class PaymentServiceSpec extends Specification {
 
         then:
         notThrown(Exception)
-    }
-
-    private Payment preparePayment(Map params) {
-        return new Payment(id: params.id, amount: params.amount, created: params.created)
-    }
-
-    private InProgressLoanModel prepareInProgressLoanModel(Map params) {
-        InProgressLoanModel model = Mock(InProgressLoanModel)
-        model.getAmount() >> params.amount
-        model.getAmountToReturn() >> params.amountToReturn
-        model.getInvestorInterest() >> params.investorInterest
-        model.getInvestorId() >> params.investorId
-        model.getPaidAmount() >> params.paidAmount
-        return model
     }
 }

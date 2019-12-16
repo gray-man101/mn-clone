@@ -1,5 +1,6 @@
 package com.swaperclone.company.service
 
+import com.swaperclone.UnitTestSpec
 import com.swaperclone.common.entity.Loan
 import com.swaperclone.common.entity.LoanStatus
 import com.swaperclone.common.entity.User
@@ -8,13 +9,11 @@ import com.swaperclone.common.repository.LoanRepository
 import com.swaperclone.common.repository.UserRepository
 import com.swaperclone.company.dto.LoanDTO
 import com.swaperclone.company.info.FailedLoanInfo
-import com.swaperclone.company.model.InProgressLoanModel
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
-import spock.lang.Specification
 
-class LoanServiceSpec extends Specification {
+class LoanServiceSpec extends UnitTestSpec {
 
     LoanRepository loanRepository = Mock(LoanRepository)
     UserRepository userRepository = Mock(UserRepository)
@@ -160,25 +159,5 @@ class LoanServiceSpec extends Specification {
         result.partialRefundAmount == BigDecimal.valueOf(111L)
         1 * userRepository.save(_) >> { args -> user = args[0] }
         user.getBalance() == BigDecimal.valueOf(121L)
-    }
-
-    private Loan prepareLoan(Map params) {
-        return new Loan(id: params.id, amount: params.amount, amountToReturn: params.amountToReturn,
-                investorInterest: params.investorInterest, status: params.status, debtorName: params.debtorName)
-    }
-
-    private LoanDTO prepareLoanDTO(Map params) {
-        return new LoanDTO(amount: params.amount, amountToReturn: params.amountToReturn,
-                investorInterest: params.investorInterest, status: params.status, debtorName: params.debtorName)
-    }
-
-    private InProgressLoanModel prepareInProgressLoanModel(Map params) {
-        InProgressLoanModel m = Mock(InProgressLoanModel)
-        m.getAmount() >> params.amount
-        m.getAmountToReturn() >> params.amountToReturn
-        m.getInvestorInterest() >> params.investorInterest
-        m.getInvestorId() >> params.investorId
-        m.getPaidAmount() >> params.paidAmount
-        return m
     }
 }
