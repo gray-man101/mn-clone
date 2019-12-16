@@ -15,7 +15,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class FirstE2ESpec extends Specification {
+class RegistrationSpec extends Specification {
 
     @LocalServerPort
     int port
@@ -42,6 +42,8 @@ class FirstE2ESpec extends Specification {
     def "user can register and login"() {
         when:
         RestAssured.given().get('/api/account')
+                .then().statusCode(401)
+        RestAssured.given().get('/api/role')
                 .then().statusCode(401)
         RestAssured.given().contentType(ContentType.JSON).body(REGISTRATION_REQUEST_BIDY)
                 .when().post("/api/register")
@@ -71,7 +73,11 @@ class FirstE2ESpec extends Specification {
                 .when().post('/login').thenReturn()
         then:
         response.statusCode() == 200
-        RestAssured.given().cookie(response.getDetailedCookie("JSESSIONID")).get('/api/account')
+        RestAssured.given().cookie(response.getDetailedCookie("JSESSIONID"))
+                .get('/api/role')
+                .then().statusCode(200)
+        RestAssured.given().cookie(response.getDetailedCookie("JSESSIONID"))
+                .get('/api/account')
                 .then().statusCode(200)
     }
 
