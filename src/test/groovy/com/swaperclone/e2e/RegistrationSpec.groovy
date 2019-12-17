@@ -22,7 +22,7 @@ class RegistrationSpec extends Specification {
 
     GreenMail greenMail = new GreenMail(new ServerSetup(1025, "localhost", ServerSetup.PROTOCOL_SMTP))
 
-    private static final String REGISTRATION_REQUEST_BIDY = """
+    public static final String REGISTRATION_REQUEST_BIDY = """
         {
             "firstName": "John",
             "lastName": "Doe",
@@ -32,7 +32,7 @@ class RegistrationSpec extends Specification {
         }
     """
 
-    private static final Pattern MAIL_CONTENT_PATTERN = Pattern.compile("""Please complete registration <a href='http://localhost:8080/api/register\\?token=(.*?)'>complete registration</a>\\.""")
+    public static final Pattern MAIL_CONTENT_PATTERN = Pattern.compile("""Please complete registration <a href='http://localhost:8080/api/register\\?token=(.*?)'>complete registration</a>\\.""")
 
     void setup() {
         RestAssured.port = port
