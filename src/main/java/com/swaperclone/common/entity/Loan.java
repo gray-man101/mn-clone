@@ -20,7 +20,8 @@ import java.util.List;
 public class Loan {
 
     @Id
-    @GeneratedValue(generator = "loan_seq")
+    @SequenceGenerator(name = "loan_seq", sequenceName = "loan_seq", allocationSize = 1)
+    @GeneratedValue(generator = "loan_seq", strategy = GenerationType.SEQUENCE)
     private Long id;
     @Column(nullable = false)
     private String debtorName;

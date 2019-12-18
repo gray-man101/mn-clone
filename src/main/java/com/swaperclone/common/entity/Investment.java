@@ -12,7 +12,8 @@ import java.math.BigDecimal;
 public class Investment {
 
     @Id
-    @GeneratedValue(generator = "investment_seq")
+    @SequenceGenerator(name = "investment_seq", sequenceName = "investment_seq", allocationSize = 1)
+    @GeneratedValue(generator = "investment_seq", strategy = GenerationType.SEQUENCE)
     private Long id;
     @Column(nullable = false)
     private BigDecimal amountToReceive;

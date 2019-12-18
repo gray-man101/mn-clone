@@ -14,7 +14,8 @@ import java.time.ZonedDateTime;
 public class Payment {
 
     @Id
-    @GeneratedValue(generator = "payment_seq")
+    @SequenceGenerator(name = "payment_seq", sequenceName = "payment_seq", allocationSize = 1)
+    @GeneratedValue(generator = "payment_seq", strategy = GenerationType.SEQUENCE)
     private Long id;
     @Column(nullable = false)
     @Min(10L)

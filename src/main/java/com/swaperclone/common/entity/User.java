@@ -3,10 +3,7 @@ package com.swaperclone.common.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 
@@ -16,7 +13,8 @@ import java.math.BigDecimal;
 public class User {
 
     @Id
-    @GeneratedValue(generator = "user_seq")
+    @SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 1)
+    @GeneratedValue(generator = "user_seq", strategy = GenerationType.SEQUENCE)
     private Long id;
     @Column(nullable = false, unique = true)
     private String email;
