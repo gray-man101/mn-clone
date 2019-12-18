@@ -26,7 +26,7 @@ public class AvailableLoanController {
     }
 
     @GetMapping
-    public Page<LoanDTO> getAvailableLoans(@PageableDefault(page = 0, size = 5)
+    public Page<LoanDTO> getAvailableLoans(@PageableDefault(page = 0, size = 50)
                                            @SortDefault.SortDefaults({
                                                    @SortDefault(sort = "created", direction = Sort.Direction.DESC)
                                            }) Pageable pageable) {

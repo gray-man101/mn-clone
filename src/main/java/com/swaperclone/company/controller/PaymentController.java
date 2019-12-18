@@ -28,7 +28,7 @@ public class PaymentController {
 
     @GetMapping
     public Page<PaymentDTO> get(@PathVariable Long loanId,
-                                @PageableDefault(page = 0, size = 5)
+                                @PageableDefault(page = 0, size = 50)
                                 @SortDefault.SortDefaults({
                                         @SortDefault(sort = "created", direction = Sort.Direction.DESC)
                                 }) Pageable pageable) {

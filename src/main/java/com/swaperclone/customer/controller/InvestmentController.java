@@ -23,7 +23,7 @@ public class InvestmentController {
     }
 
     @GetMapping
-    public Page<InvestmentDTO> getInvestments(MnCloneAuthenticationToken auth, @PageableDefault(page = 0, size = 5) Pageable pageable) {
+    public Page<InvestmentDTO> getInvestments(MnCloneAuthenticationToken auth, @PageableDefault(page = 0, size = 50) Pageable pageable) {
         return investmentService.getInvestments(auth.getUserId(), pageable);
     }
 
