@@ -10,6 +10,8 @@ import com.jayway.restassured.response.Cookie
 import com.swaperclone.common.entity.LoanStatus
 import com.swaperclone.company.dto.LoanDTO
 import com.swaperclone.company.dto.PaymentDTO
+import com.swaperclone.company.util.ReturnAmountCalculationUtils
+import com.swaperclone.customer.dto.InvestmentDTO
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpHeaders
@@ -32,12 +34,14 @@ class LoanCreationSpec extends Specification {
 
     Cookie adminCookie
     Cookie customerCookie
+    Cookie someOtherCustomerCookie
 
     void setup() {
         greenMail.start()
         RestAssured.port = port
         adminCookie = loginAsAdmin()
         customerCookie = registerCustomerAndLogin(email: 'ab@ab.lv')
+        someOtherCustomerCookie = registerCustomerAndLogin(email: 'cd@cd.lv')
     }
 
     void "admin can create-read-update-delete loans"() {
@@ -46,7 +50,7 @@ class LoanCreationSpec extends Specification {
                 .when().get('/api/loan')
                 .then().statusCode(200).extract()
                 .body().jsonPath().getList('content').size()
-        createLoanAsAdmin(amount: BigDecimal.valueOf(500), amountToReturn: BigDecimal.valueOf(1000))
+        performLoanCreateAsAdmin(amount: BigDecimal.valueOf(500), amountToReturn: BigDecimal.valueOf(1000))
         String result = RestAssured.given().cookie(adminCookie)
                 .when().get('/api/loan')
                 .then().statusCode(200)
@@ -92,7 +96,7 @@ class LoanCreationSpec extends Specification {
 
     void "admin can create-read-update-delete payments"() {
         when:
-        createLoanAsAdmin(amount: BigDecimal.valueOf(1500), amountToReturn: BigDecimal.valueOf(3000))
+        performLoanCreateAsAdmin(amount: BigDecimal.valueOf(1500), amountToReturn: BigDecimal.valueOf(3000))
         String result = RestAssured.given().cookie(adminCookie)
                 .when().get('/api/loan')
                 .then().statusCode(200).extract()
@@ -113,9 +117,9 @@ class LoanCreationSpec extends Specification {
                 .extract().jsonPath().getList('content').size()
 
         when:
-        topUpAsCustomer(BigDecimal.valueOf(1500))
+        topUpAsCustomer(amount: BigDecimal.valueOf(1500))
         performInvestOperationAsCustomer(loanId)
-        createPaymentAsAdmin(loanId)
+        performPaymentCreateAsAdmin(loanId)
         result = RestAssured.given().cookie(adminCookie)
                 .when().get('/api/loan/' + loanId + '/payment')
                 .then().statusCode(200)
@@ -128,13 +132,7 @@ class LoanCreationSpec extends Specification {
         payments[0].amount == BigDecimal.valueOf(100)
 
         when:
-        RestAssured.given().cookie(adminCookie).contentType(ContentType.JSON)
-                .when().body("""
-                    {
-                        "amount": 110
-                    }
-                """).put('/api/loan/' + loanId + '/payment/' + paymentId)
-                .then().statusCode(200)
+        performPaymentUpdateAsAdmin(loanId, paymentId, [amount: BigDecimal.valueOf(110)])
         result = RestAssured.given().cookie(adminCookie)
                 .when().get('/api/loan/' + loanId + '/payment')
                 .then().statusCode(200)
@@ -160,83 +158,150 @@ class LoanCreationSpec extends Specification {
 
     void "admin cannot create loan with insufficient return amount"() {
         expect:
-        createLoanAsAdmin(amount: BigDecimal.valueOf(2000), amountToReturn: BigDecimal.valueOf(2000), expectedStatus: 400)
-    }
-
-    private void createPaymentAsAdmin(long loanId, Map params = [:]) {
-        RestAssured.given().cookie(adminCookie).contentType(ContentType.JSON)
-                .when().body("""
-                    {
-                        "amount": 100
-                    }
-                """).post('/api/loan/' + loanId + '/payment')
-                .then().statusCode(params.expectedStatus ?: 201)
+        performLoanCreateAsAdmin(amount: BigDecimal.valueOf(2000), amountToReturn: BigDecimal.valueOf(2000), expectedStatus: 400)
     }
 
     void "admin cannot update-delete loan with status other than NEW"() {
         given:
-        createLoanAsAdmin(amount: BigDecimal.valueOf(500), amountToReturn: BigDecimal.valueOf(1000))
+        performLoanCreateAsAdmin(amount: BigDecimal.valueOf(500), amountToReturn: BigDecimal.valueOf(1000))
 
         when:
-        topUpAsCustomer(BigDecimal.valueOf(500))
-        Long loanId = performGetAvailableLoansAsCustomer()
+        topUpAsCustomer(amount: BigDecimal.valueOf(500))
+        Long loanId = performGetAvailableLoansAsCustomer(expectedAvailableLoanCount: 1)
 
         then:
         performInvestOperationAsCustomer(loanId)
-        checkBalanceAsCustomer(BigDecimal.ZERO)
+        checkBalanceAsCustomer(expectedBalance: BigDecimal.ZERO)
         performLoanUpdateAsAdmin(loanId, [expectedStatus: 404])
         performLoanDeleteAsAdmin(loanId, [expectedStatus: 404])
     }
 
     void "customer can top up and withdraw money"() {
         when:
-        checkBalanceAsCustomer(BigDecimal.ZERO)
-        topUpAsCustomer(BigDecimal.valueOf(450))
-        checkBalanceAsCustomer(BigDecimal.valueOf(450))
+        checkBalanceAsCustomer(expectedBalance: BigDecimal.ZERO)
+        topUpAsCustomer(amount: BigDecimal.valueOf(450))
+        checkBalanceAsCustomer(expectedBalance: BigDecimal.valueOf(450))
         withdrawAsCustomer(BigDecimal.valueOf(300))
 
         then:
-        checkBalanceAsCustomer(BigDecimal.valueOf(150))
+        checkBalanceAsCustomer(expectedBalance: BigDecimal.valueOf(150))
     }
 
     void "customer can invest in loans"() {
-        expect:
-        0 == RestAssured.given().cookie(customerCookie)
-                .when().get('/api/investment')
-                .then().statusCode(200).extract()
-                .jsonPath().getList('content').size()
         when:
-        checkBalanceAsCustomer(BigDecimal.ZERO)
-        createLoanAsAdmin(amount: BigDecimal.valueOf(1200), amountToReturn: BigDecimal.valueOf(2400))
-        Long loanId = performGetAvailableLoansAsCustomer()
+        performGetInvestmentsAsCustomer()
+        checkBalanceAsCustomer(expectedBalance: BigDecimal.ZERO)
+        performLoanCreateAsAdmin(amount: BigDecimal.valueOf(1200), amountToReturn: BigDecimal.valueOf(2400), debtorName: 'Steve')
+        Long loanId = performGetAvailableLoansAsCustomer(cookie: customerCookie, expectedAvailableLoanCount: 1)
+        performGetAvailableLoansAsCustomer(cookie: someOtherCustomerCookie, expectedAvailableLoanCount: 1)
 
         then:
-        performInvestOperationAsCustomer(loanId, [expectedStatus: 400])
+        performInvestOperationAsCustomer(loanId, [cookie: customerCookie, expectedStatus: 400])
 
         when:
-        topUpAsCustomer(BigDecimal.valueOf(1300))
-        performInvestOperationAsCustomer(loanId)
-        checkBalanceAsCustomer(BigDecimal.valueOf(100))
+        topUpAsCustomer(amount: BigDecimal.valueOf(1300))
+        performInvestOperationAsCustomer(loanId, [cookie: customerCookie, expectedStatus: 200])
 
         then:
-        1 == RestAssured.given().cookie(customerCookie)
-                .when().get('/api/investment')
-                .then().statusCode(200).extract()
-                .jsonPath().getList('content').size()
+        checkBalanceAsCustomer(expectedBalance: BigDecimal.valueOf(100))
+        performGetAvailableLoansAsCustomer(cookie: customerCookie, expectedAvailableLoanCount: 0)
+        performGetAvailableLoansAsCustomer(cookie: someOtherCustomerCookie, expectedAvailableLoanCount: 0)
+
+        when:
+        performLoanCreateAsAdmin(amount: BigDecimal.valueOf(1600), amountToReturn: BigDecimal.valueOf(3200), debtorName: 'Peter')
+        topUpAsCustomer(cookie: someOtherCustomerCookie, amount: BigDecimal.valueOf(1300))
+        Long otherLoanId = performGetAvailableLoansAsCustomer(cookie: customerCookie, expectedAvailableLoanCount: 1)
+        performGetAvailableLoansAsCustomer(cookie: someOtherCustomerCookie, expectedAvailableLoanCount: 1)
+        performInvestOperationAsCustomer(otherLoanId, [cookie: someOtherCustomerCookie])
+
+        then:
+        performGetAvailableLoansAsCustomer(cookie: customerCookie, expectedAvailableLoanCount: 0)
+        performGetAvailableLoansAsCustomer(cookie: someOtherCustomerCookie, expectedAvailableLoanCount: 0)
+        performInvestOperationAsCustomer(loanId, [expectedStatus: 404])
+        InvestmentDTO[] investmentDTOS = performGetInvestmentsAsCustomer(expectedCount: 1)
+        investmentDTOS[0].debtorName == 'Steve'
     }
 
     void "customer receives profit for completed loan"() {
-        given:
-        topUpAsCustomer(BigDecimal.valueOf(2000))
-        createLoanAsAdmin(amount: BigDecimal.valueOf(2000), amountToReturn: BigDecimal.valueOf(2400))
-        Long loanId = performGetAvailableLoansAsCustomer()
-        performInvestOperationAsCustomer(loanId)
-
         when:
-        println 'b'
+        checkBalanceAsCustomer(expectedBalance: BigDecimal.ZERO)
+        topUpAsCustomer(amount: BigDecimal.valueOf(2000))
+        performLoanCreateAsAdmin(amount: BigDecimal.valueOf(2000), amountToReturn: BigDecimal.valueOf(4000))
+        String loanResponseBody = RestAssured.given().cookie(adminCookie)
+                .when().get('/api/loan')
+                .then().statusCode(200).extract().asString()
+        LoanDTO[] loans = mapper.readValue(JsonPath.read(loanResponseBody, 'content').toString(), LoanDTO[].class)
 
         then:
-        1 == 1
+        loans.length == 1
+        loans[0].status == LoanStatus.NEW
+
+        when:
+        Long loanId = performGetAvailableLoansAsCustomer(expectedAvailableLoanCount: 1)
+        performInvestOperationAsCustomer(loanId)
+        loanResponseBody = RestAssured.given().cookie(adminCookie)
+                .when().get('/api/loan')
+                .then().statusCode(200).extract().asString()
+        loans = mapper.readValue(JsonPath.read(loanResponseBody, 'content').toString(), LoanDTO[].class)
+
+        then:
+        loans.length == 1
+        loans[0].status == LoanStatus.IN_PROGRESS
+
+        when:
+        performPaymentCreateAsAdmin(loanId, [amount: BigDecimal.valueOf(2000)])
+        loanResponseBody = RestAssured.given().cookie(adminCookie)
+                .when().get('/api/loan')
+                .then().statusCode(200).extract().asString()
+        loans = mapper.readValue(JsonPath.read(loanResponseBody, 'content').toString(), LoanDTO[].class)
+
+        then:
+        loans.length == 1
+        loans[0].status == LoanStatus.IN_PROGRESS
+
+        when:
+        performPaymentCreateAsAdmin(loanId, [amount: BigDecimal.valueOf(2000)])
+        loanResponseBody = RestAssured.given().cookie(adminCookie)
+                .when().get('/api/loan')
+                .then().statusCode(200).extract().asString()
+        loans = mapper.readValue(JsonPath.read(loanResponseBody, 'content').toString(), LoanDTO[].class)
+
+        then:
+        loans.length == 1
+        loans[0].status == LoanStatus.COMPLETE
+        checkBalanceAsCustomer(expectedBalance: BigDecimal.valueOf(2220))
+    }
+
+    void "customer receives partial refund if loan status becomes FAILED"() {
+        when:
+        checkBalanceAsCustomer(expectedBalance: BigDecimal.ZERO)
+        topUpAsCustomer(amount: BigDecimal.valueOf(1700))
+        performLoanCreateAsAdmin(amount: BigDecimal.valueOf(1700), amountToReturn: BigDecimal.valueOf(3400))
+        Long loanId = performGetAvailableLoansAsCustomer(expectedAvailableLoanCount: 1)
+        performInvestOperationAsCustomer(loanId)
+
+        then:
+        performGetAvailableLoansAsCustomer(expectedAvailableLoanCount: 0)
+        checkBalanceAsCustomer(expectedBalance: BigDecimal.ZERO)
+
+        when:
+        performPaymentCreateAsAdmin(loanId, [amount: BigDecimal.valueOf(100)])
+        performPaymentCreateAsAdmin(loanId, [amount: BigDecimal.valueOf(100)])
+        performPaymentCreateAsAdmin(loanId, [amount: BigDecimal.valueOf(100)])
+        RestAssured.given().cookie(adminCookie)
+                .when().post('/api/loan/' + loanId + '/fail')
+                .then().statusCode(200)
+        String loanResponseBody = RestAssured.given().cookie(adminCookie)
+                .when().get('/api/loan')
+                .then().statusCode(200).extract().asString()
+        LoanDTO[] loans = mapper.readValue(JsonPath.read(loanResponseBody, 'content').toString(), LoanDTO[].class)
+
+        then:
+        loans.length == 1
+        loans[0].status == LoanStatus.FAILED
+        checkBalanceAsCustomer(expectedBalance: ReturnAmountCalculationUtils.calculatePartialRefundAmount(
+                BigDecimal.valueOf(300), BigDecimal.valueOf(1700), BigDecimal.valueOf(3400), BigDecimal.valueOf(11)
+        ))
     }
 
     private Cookie loginAsAdmin() {
@@ -264,6 +329,7 @@ class LoanCreationSpec extends Specification {
                 .then().statusCode(200)
         greenMail.waitForIncomingEmail(3000, 1)
         Message[] messages = greenMail.getReceivedMessages()
+        assert messages.length == 1
         assert messages[0].allRecipients.size() == 1
         assert messages[0].allRecipients[0].toString() == params.email
         Matcher matcher = RegistrationSpec.MAIL_CONTENT_PATTERN.matcher(messages[0].content as String)
@@ -273,6 +339,7 @@ class LoanCreationSpec extends Specification {
                 .when().get("/api/register?token=" + matcher.group(1))
                 .then().statusCode(302)
                 .and().header(HttpHeaders.LOCATION, 'http://localhost:8080/')
+        greenMail.reset()
         return RestAssured.given()
                 .contentType(ContentType.URLENC)
                 .formParam('username', params.email as String).formParam('password', '123')
@@ -281,10 +348,17 @@ class LoanCreationSpec extends Specification {
                 .extract().detailedCookie("JSESSIONID")
     }
 
-    private void performLoanDeleteAsAdmin(long loanId, Map params = [:]) {
+    private void performLoanCreateAsAdmin(Map params = [:]) {
         RestAssured.given().cookie(adminCookie).contentType(ContentType.JSON)
-                .when().delete('/api/loan/' + loanId)
-                .then().statusCode(params.expectedStatus ?: 200)
+                .when().body("""
+                    {
+                        "debtorName":"${params.debtorName ?: 'John'}",
+                        "amount": ${params.amount ?: BigDecimal.valueOf(1000)},
+                        "investorInterest": 11,
+                        "amountToReturn": ${params.amountToReturn}
+                    }
+                """).post('/api/loan')
+                .then().statusCode(params.expectedStatus ?: 201)
     }
 
     private void performLoanUpdateAsAdmin(long loanId, Map params = [:]) {
@@ -300,29 +374,42 @@ class LoanCreationSpec extends Specification {
                 .then().statusCode(params.expectedStatus ?: 200)
     }
 
-    private void createLoanAsAdmin(Map params = [:]) {
+    private void performLoanDeleteAsAdmin(long loanId, Map params = [:]) {
+        RestAssured.given().cookie(adminCookie).contentType(ContentType.JSON)
+                .when().delete('/api/loan/' + loanId)
+                .then().statusCode(params.expectedStatus ?: 200)
+    }
+
+    private void performPaymentCreateAsAdmin(long loanId, Map params = [:]) {
         RestAssured.given().cookie(adminCookie).contentType(ContentType.JSON)
                 .when().body("""
                     {
-                        "debtorName":"John",
-                        "amount": ${params.amount},
-                        "investorInterest": 11,
-                        "amountToReturn": ${params.amountToReturn}
+                        "amount": ${params.amount ?: BigDecimal.valueOf(100)}
                     }
-                """).post('/api/loan')
+                """).post('/api/loan/' + loanId + '/payment')
                 .then().statusCode(params.expectedStatus ?: 201)
     }
 
-    private void topUpAsCustomer(BigDecimal amount) {
-        float initialBalance = RestAssured.given().cookie(customerCookie)
+    private void performPaymentUpdateAsAdmin(long loanId, long paymentId, Map params = [:]) {
+        RestAssured.given().cookie(adminCookie).contentType(ContentType.JSON)
+                .when().body("""
+                    {
+                        "amount": ${params.amount ?: BigDecimal.valueOf(100)}
+                    }
+                """).put('/api/loan/' + loanId + '/payment/' + paymentId)
+                .then().statusCode(params.expectedStatus ?: 200)
+    }
+
+    private void topUpAsCustomer(Map params = [:]) {
+        float initialBalance = RestAssured.given().cookie(params.cookie ?: customerCookie)
                 .when().get('/api/account')
                 .then().statusCode(200)
                 .extract().jsonPath().getFloat('balance')
         RestAssured.given().cookie(customerCookie).contentType(ContentType.JSON)
-                .when().body("{\"amount\": " + amount.toString() + "}").post('/api/account/topUp')
+                .when().body("{\"amount\": " + params.amount.toString() + "}").post('/api/account/topUp')
                 .then().statusCode(200)
 
-        checkBalanceAsCustomer(amount.add(BigDecimal.valueOf(initialBalance)))
+        checkBalanceAsCustomer(expectedBalance: params.amount.add(BigDecimal.valueOf(initialBalance)))
     }
 
     private void withdrawAsCustomer(BigDecimal amount) {
@@ -334,34 +421,49 @@ class LoanCreationSpec extends Specification {
                 .when().body("{\"amount\": " + amount.toString() + "}").post('/api/account/withdraw')
                 .then().statusCode(200)
 
-        checkBalanceAsCustomer(BigDecimal.valueOf(initialBalance).subtract(amount))
+        checkBalanceAsCustomer(expectedBalance: BigDecimal.valueOf(initialBalance).subtract(amount))
     }
 
-    private void checkBalanceAsCustomer(BigDecimal expectedBalance) {
-        float balance = RestAssured.given().cookie(customerCookie)
+    private void checkBalanceAsCustomer(Map params = [:]) {
+        float balance = RestAssured.given().cookie(params.cookie ?: customerCookie)
                 .when().get('/api/account')
                 .then().statusCode(200)
                 .extract().jsonPath().getFloat('balance')
-        assert expectedBalance.longValue() == balance
+        assert (params.expectedBalance ?: BigDecimal.ZERO).floatValue() == balance
     }
 
     private void performInvestOperationAsCustomer(Long loanId, Map params = [:]) {
-        RestAssured.given().cookie(customerCookie)
+        RestAssured.given().cookie(params.cookie ?: customerCookie)
                 .when().post('/api/investment/' + loanId)
                 .then().statusCode(params.expectedStatus ?: 200)
     }
 
-    private Long performGetAvailableLoansAsCustomer() {
-        String responseBody = RestAssured.given().cookie(customerCookie)
+    private Long performGetAvailableLoansAsCustomer(Map params = [:]) {
+        String responseBody = RestAssured.given().cookie(params.cookie ?: customerCookie)
                 .when().get('/api/availableLoan')
                 .then().statusCode(200)
                 .extract().asString()
 
         LoanDTO[] loans = mapper.readValue(JsonPath.read(responseBody, 'content').toString(), LoanDTO[].class)
 
-        assert loans.length == 1
+        int expectedCount = params.expectedAvailableLoanCount ?: 1
+        assert loans.length == expectedCount
+        if (expectedCount != 1) {
+            return null
+        }
 
         return JsonPath.read(responseBody, 'content[0].id')
+    }
+
+    private InvestmentDTO[] performGetInvestmentsAsCustomer(Map params = [:]) {
+        def expectedCount = params.expectedCount ?: 0
+        String responseBody = RestAssured.given().cookie(customerCookie)
+                .when().get('/api/investment')
+                .then().statusCode(200)
+                .extract().asString()
+        InvestmentDTO[] result = mapper.readValue(JsonPath.read(responseBody, 'content').toString(), InvestmentDTO[].class)
+        assert expectedCount == result.length
+        return result
     }
 
 }
