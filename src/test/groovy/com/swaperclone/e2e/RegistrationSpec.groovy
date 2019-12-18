@@ -20,7 +20,7 @@ class RegistrationSpec extends Specification {
     @LocalServerPort
     int port
 
-    GreenMail greenMail = new GreenMail(new ServerSetup(1025, "localhost", ServerSetup.PROTOCOL_SMTP))
+    static GreenMail greenMail = new GreenMail(new ServerSetup(1025, "localhost", ServerSetup.PROTOCOL_SMTP))
 
     public static final String REGISTRATION_REQUEST_BIDY = """
         {
@@ -79,6 +79,10 @@ class RegistrationSpec extends Specification {
         RestAssured.given().cookie(response.getDetailedCookie("JSESSIONID"))
                 .get('/api/account')
                 .then().statusCode(200)
+    }
+
+    void cleanupSpec() {
+        greenMail.stop()
     }
 
 }
