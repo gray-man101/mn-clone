@@ -40,48 +40,6 @@ class LoanCreationSpec extends Specification {
         customerCookie = registerCustomerAndLogin(email: 'ab@ab.lv')
     }
 
-    private Cookie loginAsAdmin() {
-        return RestAssured.given()
-                .contentType(ContentType.URLENC)
-                .formParam('username', 'admin')
-                .formParam('password', '123')
-                .when().post('/login')
-                .then().statusCode(200)
-                .extract().detailedCookie("JSESSIONID")
-    }
-
-    private Cookie registerCustomerAndLogin(Map params) {
-        RestAssured.given().contentType(ContentType.JSON)
-                .body("""
-                    {
-                        "firstName": "John",
-                        "lastName": "Doe",
-                        "password": "12345",
-                        "passwordRepeat": "12345",
-                        "email": "${params.email}"
-                    }
-                """)
-                .when().post("/api/register")
-                .then().statusCode(200)
-        greenMail.waitForIncomingEmail(3000, 1)
-        Message[] messages = greenMail.getReceivedMessages()
-        assert messages[0].allRecipients.size() == 1
-        assert messages[0].allRecipients[0].toString() == params.email
-        Matcher matcher = RegistrationSpec.MAIL_CONTENT_PATTERN.matcher(messages[0].content as String)
-        assert matcher.find()
-
-        RestAssured.given().redirects().follow(false)
-                .when().get("/api/register?token=" + matcher.group(1))
-                .then().statusCode(302)
-                .and().header(HttpHeaders.LOCATION, 'http://localhost:8080/')
-        return RestAssured.given()
-                .contentType(ContentType.URLENC)
-                .formParam('username', params.email as String).formParam('password', '123')
-                .when().post('/login')
-                .then().statusCode(200)
-                .extract().detailedCookie("JSESSIONID")
-    }
-
     void "admin can create-read-update-delete loans"() {
         when:
         int loanArraySize = RestAssured.given().cookie(adminCookie)
@@ -130,38 +88,6 @@ class LoanCreationSpec extends Specification {
                 .then().statusCode(200)
                 .extract().body().jsonPath().getList('content').size()
 
-    }
-
-    private void performLoanDeleteAsAdmin(long loanId, Map params) {
-        RestAssured.given().cookie(adminCookie).contentType(ContentType.JSON)
-                .when().delete('/api/loan/' + loanId)
-                .then().statusCode(params.expectedStatus as int)
-    }
-
-    private void performLoanUpdateAsAdmin(long loanId, Map params) {
-        RestAssured.given().cookie(adminCookie).contentType(ContentType.JSON)
-                .when().body("""
-                    {
-                        "debtorName":"John1",
-                        "amount": 501,
-                        "investorInterest": 12,
-                        "amountToReturn": 1001
-                    }
-                """).put('/api/loan/' + loanId)
-                .then().statusCode(params.expectedStatus as int)
-    }
-
-    private void createLoanAsAdmin(Map params) {
-        RestAssured.given().cookie(adminCookie).contentType(ContentType.JSON)
-                .when().body("""
-                    {
-                        "debtorName":"John",
-                        "amount": ${params.amount},
-                        "investorInterest": 11,
-                        "amountToReturn": ${params.amountToReturn}
-                    }
-                """).post('/api/loan')
-                .then().statusCode(201)
     }
 
     void "admin can create-read-update-delete payments"() {
@@ -261,6 +187,11 @@ class LoanCreationSpec extends Specification {
     }
 
     void "customer can invest in loans"() {
+        expect:
+        0 == RestAssured.given().cookie(customerCookie)
+                .when().get('/api/investment')
+                .then().statusCode(200).extract()
+                .jsonPath().getList('content').size()
         when:
         checkBalanceAsCustomer(BigDecimal.ZERO)
         createLoanAsAdmin([amount: BigDecimal.valueOf(1200), amountToReturn: BigDecimal.valueOf(2400)])
@@ -279,6 +210,80 @@ class LoanCreationSpec extends Specification {
                 .when().get('/api/investment')
                 .then().statusCode(200).extract()
                 .jsonPath().getList('content').size()
+    }
+
+    private Cookie loginAsAdmin() {
+        return RestAssured.given()
+                .contentType(ContentType.URLENC)
+                .formParam('username', 'admin')
+                .formParam('password', '123')
+                .when().post('/login')
+                .then().statusCode(200)
+                .extract().detailedCookie("JSESSIONID")
+    }
+
+    private Cookie registerCustomerAndLogin(Map params) {
+        RestAssured.given().contentType(ContentType.JSON)
+                .body("""
+                    {
+                        "firstName": "John",
+                        "lastName": "Doe",
+                        "password": "12345",
+                        "passwordRepeat": "12345",
+                        "email": "${params.email}"
+                    }
+                """)
+                .when().post("/api/register")
+                .then().statusCode(200)
+        greenMail.waitForIncomingEmail(3000, 1)
+        Message[] messages = greenMail.getReceivedMessages()
+        assert messages[0].allRecipients.size() == 1
+        assert messages[0].allRecipients[0].toString() == params.email
+        Matcher matcher = RegistrationSpec.MAIL_CONTENT_PATTERN.matcher(messages[0].content as String)
+        assert matcher.find()
+
+        RestAssured.given().redirects().follow(false)
+                .when().get("/api/register?token=" + matcher.group(1))
+                .then().statusCode(302)
+                .and().header(HttpHeaders.LOCATION, 'http://localhost:8080/')
+        return RestAssured.given()
+                .contentType(ContentType.URLENC)
+                .formParam('username', params.email as String).formParam('password', '123')
+                .when().post('/login')
+                .then().statusCode(200)
+                .extract().detailedCookie("JSESSIONID")
+    }
+
+    private void performLoanDeleteAsAdmin(long loanId, Map params) {
+        RestAssured.given().cookie(adminCookie).contentType(ContentType.JSON)
+                .when().delete('/api/loan/' + loanId)
+                .then().statusCode(params.expectedStatus as int)
+    }
+
+    private void performLoanUpdateAsAdmin(long loanId, Map params) {
+        RestAssured.given().cookie(adminCookie).contentType(ContentType.JSON)
+                .when().body("""
+                    {
+                        "debtorName":"John1",
+                        "amount": 501,
+                        "investorInterest": 12,
+                        "amountToReturn": 1001
+                    }
+                """).put('/api/loan/' + loanId)
+                .then().statusCode(params.expectedStatus as int)
+    }
+
+    private void createLoanAsAdmin(Map params) {
+        RestAssured.given().cookie(adminCookie).contentType(ContentType.JSON)
+                .when().body("""
+                    {
+                        "debtorName":"John",
+                        "amount": ${params.amount},
+                        "investorInterest": 11,
+                        "amountToReturn": ${params.amountToReturn}
+                    }
+                """).post('/api/loan')
+                .then().statusCode(201)
     }
 
     private void topUpAsCustomer(BigDecimal amount) {
