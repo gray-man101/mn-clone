@@ -1,5 +1,6 @@
 package com.swaperclone.company.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -16,5 +17,6 @@ public class PaymentDTO {
     @Min(value = 10, message = "Amount must be at least 10")
     private BigDecimal amount;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private ZonedDateTime created;
 }

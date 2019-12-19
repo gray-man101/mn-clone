@@ -54,7 +54,7 @@ public class LoanService {
     @Transactional
     public void update(Long id, LoanDTO loanDTO) {
         Loan loan = loanRepository.findNewLoan(id)
-                .orElseThrow(() -> new NotFoundException("Loan not found"));
+                .orElseThrow(() -> new NotFoundException(String.format("Cannot update loan %d. Only ones in status %s can be updated", id, LoanStatus.NEW)));
         loan.setDebtorName(loanDTO.getDebtorName());
         loan.setAmount(loanDTO.getAmount());
         loan.setAmountToReturn(loanDTO.getAmountToReturn());
@@ -66,14 +66,14 @@ public class LoanService {
     public void delete(Long id) {
         int deletedObjects = loanRepository.deleteNewLoan(id);
         if (deletedObjects < 1) {
-            throw new NotFoundException(String.format("Loan %d in status %s not found", id, LoanStatus.NEW));
+            throw new NotFoundException(String.format("Cannot delete loan %d. Only ones in status %s can be updated", id, LoanStatus.NEW));
         }
     }
 
     @Transactional
     public FailedLoanInfo setFailedStatus(Long id) {
         InProgressLoanModel inProgressLoanModel = loanRepository.findLoanInProgress(id)
-                .orElseThrow(() -> new NotFoundException("Loan not found"));
+                .orElseThrow(() -> new NotFoundException(String.format("Cannot set loan %d status to failed. Only ones in status %s can be updated", id, LoanStatus.IN_PROGRESS)));
         FailedLoanInfo result = refundInvestorPartly(inProgressLoanModel);
         loanRepository.updateLoanStatusToFailed(id);
 

@@ -5,16 +5,14 @@ import com.swaperclone.common.repository.InvestmentRepository;
 import com.swaperclone.common.repository.LoanRepository;
 import com.swaperclone.common.repository.PaymentRepository;
 import com.swaperclone.common.repository.UserRepository;
+import com.swaperclone.company.util.ReturnAmountCalculationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.time.ZonedDateTime;
 
 @Component
@@ -29,8 +27,6 @@ public class StartupComponent {
     private InvestmentRepository investmentRepository;
     @Autowired
     private PaymentRepository paymentRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @EventListener
     public void handleContextStart(ContextRefreshedEvent cre) {
@@ -38,15 +34,14 @@ public class StartupComponent {
 
         Loan loan1 = createLoan("John", BigDecimal.valueOf(1000));
         Loan loan2 = createLoan("Steve", BigDecimal.valueOf(1500));
-        loan2.setStatus(LoanStatus.IN_PROGRESS);
         Loan loan3 = createLoan("Peter", BigDecimal.valueOf(2000));
         loanRepository.save(loan2);
 
-        createInvestment(loan1, user);
+//        createInvestment(loan1, user);
 //        createInvestment(loan2, user);
 
         createPayment(BigDecimal.valueOf(100), loan1);
-        createPayment(BigDecimal.valueOf(110), loan2);
+//        createPayment(BigDecimal.valueOf(110), loan2);
     }
 
     private User createCustomer(String email) {
@@ -56,8 +51,8 @@ public class StartupComponent {
         customer.setLastName("Doe");
         customer.setBalance(BigDecimal.valueOf(1700));
         customer.setRegistered(true);
-        customer.setEncodedPassword(passwordEncoder.encode("SuPeRsEcUrEpWs0987654321"));
-        customer.setRegistrationToken(passwordEncoder.encode("123" + email));
+        customer.setEncodedPassword("any password will work");
+        customer.setRegistrationToken("qwerty123");
         return userRepository.save(customer);
     }
 
@@ -85,8 +80,7 @@ public class StartupComponent {
         Investment investment = new Investment();
         investment.setLoan(loan);
         investment.setInvestor(investor);
-        investment.setAmountToReceive(loan.getAmount()
-                .multiply(loan.getInvestorInterest(), new MathContext(2, RoundingMode.DOWN)));
+        investment.setAmountToReceive(ReturnAmountCalculationUtils.calculateInvestorReturnAmount(loan.getAmount(), loan.getInvestorInterest()));
         loan.setStatus(LoanStatus.IN_PROGRESS);
         loanRepository.save(loan);
         return investmentRepository.save(investment);

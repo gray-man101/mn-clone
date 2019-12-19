@@ -23,6 +23,7 @@ public class LoanDTO {
     @Min(value = 100, message = "Loan return amount must be at least 100")
     private BigDecimal amountToReturn;
     @NotNull(message = "Investor interest cannot be empty")
+    @Min(value = 5, message = "Investor interest must be at least 5%")
     private BigDecimal investorInterest;
     private LoanStatus status;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
