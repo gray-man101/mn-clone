@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
+@Table(name = "`user`")
 public class User {
 
     @Id
