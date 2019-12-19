@@ -4,6 +4,7 @@ plugins {
     id 'java'
     id 'groovy'
     id 'war'
+    id "com.avast.gradle.docker-compose" version "0.8.14"
 }
 
 group = 'com.example'
@@ -30,6 +31,16 @@ dependencies {
     testCompile 'org.spockframework:spock-spring:1.3-groovy-2.5'
     testCompile 'com.jayway.restassured:rest-assured:2.9.0'
     testCompile 'com.icegreen:greenmail-spring:1.5.11'
+}
+
+dockerCompose {
+    database {
+        useComposeFiles = ['docker-compose.yml']
+    }
+}
+
+bootRun {
+    dependsOn 'databaseComposeUp'
 }
 
 test {
