@@ -37,9 +37,11 @@ public class StartupComponent {
         Loan loan3 = createLoan("Peter", BigDecimal.valueOf(2000));
         loanRepository.save(loan2);
 
-//        createInvestment(loan1, user);
+        createInvestment(loan1, user);
 //        createInvestment(loan2, user);
 
+        createPayment(BigDecimal.valueOf(100), loan1);
+        createPayment(BigDecimal.valueOf(100), loan1);
         createPayment(BigDecimal.valueOf(100), loan1);
 //        createPayment(BigDecimal.valueOf(110), loan2);
     }

@@ -15,7 +15,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Page<Payment> findByLoanId(Long loanId, Pageable pageable);
 
     @Modifying
-    @Query("delete from Payment p where exists (select p1.id from Payment p1 where p1.id=:id and p1.loan.id=:loanId)")
+    @Query("delete from Payment p where p.id=:id and p.loan.id=:loanId")
     int deletePayment(@Param("loanId") Long loanId, @Param("id") Long id);
 
     @Modifying

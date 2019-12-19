@@ -75,7 +75,7 @@ public class PaymentService {
     @Transactional
     public void delete(Long loanId, Long id) {
         int deletedObjects = paymentRepository.deletePayment(loanId, id);
-        if (deletedObjects < 1) {
+        if (deletedObjects != 1) {
             throw new NotFoundException(String.format("Payment %d for loan %d not found", id, loanId));
         }
     }
