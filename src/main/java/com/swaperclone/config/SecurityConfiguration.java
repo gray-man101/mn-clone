@@ -28,7 +28,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(final HttpSecurity http) throws Exception {
         http
                 .cors().and()
-                .formLogin().successHandler((request, response, authentication) -> response.setStatus(200))
+                .formLogin().loginPage("/").loginProcessingUrl("/login")
+                .successHandler((request, response, authentication) -> response.setStatus(200))
                 .and()
                 .exceptionHandling()
                 .defaultAuthenticationEntryPointFor(

@@ -40,7 +40,24 @@ dockerCompose {
 }
 
 bootRun {
+    def profile = (project.hasProperty('profile') ? project.findProperty('profile') : 'prod')
+    println profile
+    args = ["--spring.profiles.active=" + profile]
     dependsOn 'databaseComposeUp'
+    dependsOn 'copyFrontendFiles'
+}
+
+task copyFrontendFiles {
+    copy {
+        String fromDir = "${rootDir}${File.separator}..${File.separator}company-app${File.separator}dist${File.separator}company-app"
+        String intoDir = "${rootDir}${File.separator}src${File.separator}main${File.separator}resources${File.separator}static"
+        println '-----------------------------------------------'
+        println "Copying frontend files from ${fromDir} into ${intoDir} "
+        println '-----------------------------------------------'
+
+        from(fromDir)
+        into(intoDir)
+    }
 }
 
 test {
@@ -50,9 +67,8 @@ test {
 clean {
     dependsOn 'databaseComposeDown'
     doFirst {
-        println rootDir
-        delete fileTree("${rootDir}/src/main/resources/static/") {
-            include '**/*'
+        delete fileTree("${rootDir}${File.separator}src${File.separator}main${File.separator}resources${File.separator}static") {
+            include "**${File.separator}*"
         }
     }
 }
