@@ -11,9 +11,9 @@ class PaymentRepositorySpec extends RepositorySpec {
 
     void "test findByLoanId"() {
         given:
-        Loan withoutPayments = prepareLn(debtorName: 'John1', amount: BigDecimal.valueOf(1100), investorInterest: BigDecimal.valueOf(11),
+        Loan withoutPayments = prepareLoan(debtorName: 'John1', amount: BigDecimal.valueOf(1100), investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(2200), status: LoanStatus.IN_PROGRESS)
-        Loan withPayments = prepareLn(debtorName: 'John2', amount: BigDecimal.valueOf(1200), investorInterest: BigDecimal.valueOf(11),
+        Loan withPayments = prepareLoan(debtorName: 'John2', amount: BigDecimal.valueOf(1200), investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(2400), status: LoanStatus.IN_PROGRESS)
         preparePayment(amount: BigDecimal.valueOf(100), loan: withPayments)
         preparePayment(amount: BigDecimal.valueOf(110), loan: withPayments)
@@ -31,7 +31,7 @@ class PaymentRepositorySpec extends RepositorySpec {
 
     void "test deletePayment"() {
         given:
-        Loan withPayments = prepareLn(debtorName: 'John2', amount: BigDecimal.valueOf(1200), investorInterest: BigDecimal.valueOf(11),
+        Loan withPayments = prepareLoan(debtorName: 'John2', amount: BigDecimal.valueOf(1200), investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(2400), status: LoanStatus.IN_PROGRESS)
         Payment p = preparePayment(amount: BigDecimal.valueOf(100), loan: withPayments)
 
@@ -46,9 +46,9 @@ class PaymentRepositorySpec extends RepositorySpec {
 
     void "test updatePaymentAmount"() {
         given:
-        Loan irrelevantLoan = prepareLn(debtorName: 'John1', amount: BigDecimal.valueOf(1100), investorInterest: BigDecimal.valueOf(11),
+        Loan irrelevantLoan = prepareLoan(debtorName: 'John1', amount: BigDecimal.valueOf(1100), investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(2200), status: LoanStatus.IN_PROGRESS)
-        Loan l1 = prepareLn(debtorName: 'John2', amount: BigDecimal.valueOf(1200), investorInterest: BigDecimal.valueOf(11),
+        Loan l1 = prepareLoan(debtorName: 'John2', amount: BigDecimal.valueOf(1200), investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(2400), status: LoanStatus.IN_PROGRESS)
         Payment p = preparePayment(amount: BigDecimal.valueOf(100), loan: l1)
 

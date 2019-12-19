@@ -13,5 +13,5 @@ public interface InvestmentStatusModel {
 
     Integer getPayments();
 
-    BigDecimal getPaidAmount();
+    BigDecimal getPercentageComplete();
 }

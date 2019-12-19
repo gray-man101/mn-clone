@@ -48,7 +48,7 @@ class UnitTestSpec extends Specification {
         result.getAmount() >> params.amount
         result.getAmountToReceive() >> params.amountToReceive
         result.getPayments() >> params.payments
-        result.getPaidAmount() >> params.paidAmount
+        result.getPercentageComplete() >> params.percentageComplete
         return result
     }
 }

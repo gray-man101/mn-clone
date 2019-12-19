@@ -58,6 +58,22 @@ class CustomerOperationsSpec extends E2ESpec {
         performInvestOperationAsCustomer(loanId, [expectedStatus: 404])
         InvestmentDTO[] investmentDTOS = performGetInvestmentsAsCustomer(expectedCount: 1)
         investmentDTOS[0].debtorName == 'Steve'
+        investmentDTOS[0].payments == 0
+        investmentDTOS[0].percentageComplete == BigDecimal.ZERO
+        investmentDTOS[0].overallAmount == BigDecimal.valueOf(1200)
+        investmentDTOS[0].amountToReceive == BigDecimal.valueOf(1332)
+
+        when:
+        performPaymentCreateAsAdmin(loanId, [amount: BigDecimal.valueOf(200)])
+        performPaymentCreateAsAdmin(loanId, [amount: BigDecimal.valueOf(200)])
+        investmentDTOS = performGetInvestmentsAsCustomer(expectedCount: 1)
+
+        then:
+        investmentDTOS[0].debtorName == 'Steve'
+        investmentDTOS[0].payments == 2
+        investmentDTOS[0].percentageComplete == BigDecimal.valueOf(16.66)
+        investmentDTOS[0].overallAmount == BigDecimal.valueOf(1200)
+        investmentDTOS[0].amountToReceive == BigDecimal.valueOf(1332)
 
         cleanup:
         finalizeLoans([loanId, otherLoanId])
@@ -136,6 +152,16 @@ class CustomerOperationsSpec extends E2ESpec {
         performPaymentCreateAsAdmin(loanId, [amount: BigDecimal.valueOf(100)])
         performPaymentCreateAsAdmin(loanId, [amount: BigDecimal.valueOf(100)])
         performPaymentCreateAsAdmin(loanId, [amount: BigDecimal.valueOf(100)])
+
+        then:
+        InvestmentDTO[] investmentDTOS = performGetInvestmentsAsCustomer(expectedCount: 1)
+        investmentDTOS[0].debtorName == 'John'
+        investmentDTOS[0].payments == 3
+        investmentDTOS[0].percentageComplete == BigDecimal.valueOf(8.82)
+        investmentDTOS[0].overallAmount == BigDecimal.valueOf(1700)
+        investmentDTOS[0].amountToReceive == BigDecimal.valueOf(1887)
+
+        when:
         performSetLoanStatusFailedAsAdmin(loanId)
         String loanResponseBody = RestAssured.given().cookie(adminCookie)
                 .when().get('/api/loan')

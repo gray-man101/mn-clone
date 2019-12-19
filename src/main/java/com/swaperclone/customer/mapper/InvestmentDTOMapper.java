@@ -3,6 +3,8 @@ package com.swaperclone.customer.mapper;
 import com.swaperclone.customer.dto.InvestmentDTO;
 import com.swaperclone.customer.model.InvestmentStatusModel;
 
+import java.math.RoundingMode;
+
 public class InvestmentDTOMapper {
 
     public static InvestmentDTO map(InvestmentStatusModel model) {
@@ -10,7 +12,7 @@ public class InvestmentDTOMapper {
         dto.setId(model.getId());
         dto.setDebtorName(model.getDebtorName());
         dto.setPayments(model.getPayments());
-        dto.setPaidAmount(model.getPaidAmount());
+        dto.setPercentageComplete(model.getPercentageComplete().movePointRight(2).setScale(2, RoundingMode.DOWN));
         dto.setOverallAmount(model.getAmount());
         dto.setAmountToReceive(model.getAmountToReceive());
         return dto;

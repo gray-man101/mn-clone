@@ -12,9 +12,9 @@ class LoanRepositorySpec extends RepositorySpec {
 
     void "test findNewLoans"() {
         given:
-        Loan l1 = prepareLn(debtorName: 'John1', amount: BigDecimal.valueOf(1000), status: LoanStatus.NEW, investorInterest: BigDecimal.valueOf(11),
+        Loan l1 = prepareLoan(debtorName: 'John1', amount: BigDecimal.valueOf(1000), status: LoanStatus.NEW, investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(2000))
-        prepareLn(debtorName: 'John2', amount: BigDecimal.valueOf(1200), status: LoanStatus.FAILED, investorInterest: BigDecimal.valueOf(11),
+        prepareLoan(debtorName: 'John2', amount: BigDecimal.valueOf(1200), status: LoanStatus.FAILED, investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(2400))
 
         when:
@@ -32,9 +32,9 @@ class LoanRepositorySpec extends RepositorySpec {
 
     void "test findNewLoan"() {
         given:
-        Loan l1 = prepareLn(debtorName: 'John2', amount: BigDecimal.valueOf(1000), status: LoanStatus.FAILED, investorInterest: BigDecimal.valueOf(11),
+        Loan l1 = prepareLoan(debtorName: 'John2', amount: BigDecimal.valueOf(1000), status: LoanStatus.FAILED, investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(1200))
-        Loan l2 = prepareLn(debtorName: 'John1', amount: BigDecimal.valueOf(1200), status: LoanStatus.NEW, investorInterest: BigDecimal.valueOf(11),
+        Loan l2 = prepareLoan(debtorName: 'John1', amount: BigDecimal.valueOf(1200), status: LoanStatus.NEW, investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(2400))
 
         when:
@@ -53,11 +53,11 @@ class LoanRepositorySpec extends RepositorySpec {
 
     void "test findLoanInProgress"() {
         given:
-        Loan newLn = prepareLn(debtorName: 'John', amount: BigDecimal.valueOf(1000), investorInterest: BigDecimal.valueOf(11),
+        Loan newLoan = prepareLoan(debtorName: 'John', amount: BigDecimal.valueOf(1000), investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(2000), status: LoanStatus.NEW)
-        Loan withoutPayments = prepareLn(debtorName: 'John1', amount: BigDecimal.valueOf(1100), investorInterest: BigDecimal.valueOf(11),
+        Loan withoutPayments = prepareLoan(debtorName: 'John1', amount: BigDecimal.valueOf(1100), investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(2200), status: LoanStatus.IN_PROGRESS)
-        Loan withPayments = prepareLn(debtorName: 'John2', amount: BigDecimal.valueOf(1200), investorInterest: BigDecimal.valueOf(12),
+        Loan withPayments = prepareLoan(debtorName: 'John2', amount: BigDecimal.valueOf(1200), investorInterest: BigDecimal.valueOf(12),
                 amountToReturn: BigDecimal.valueOf(2400), status: LoanStatus.IN_PROGRESS)
         User user1 = prepareUser(email: 'user1@abc.lv', balance: BigDecimal.ZERO)
         User user2 = prepareUser(email: 'user2@abc.lv', balance: BigDecimal.ZERO)
@@ -67,7 +67,7 @@ class LoanRepositorySpec extends RepositorySpec {
         preparePayment(amount: BigDecimal.valueOf(110), loan: withPayments)
 
         when:
-        Optional<InProgressLoanModel> result1 = loanRepository.findLoanInProgress(newLn.id)
+        Optional<InProgressLoanModel> result1 = loanRepository.findLoanInProgress(newLoan.id)
         Optional<InProgressLoanModel> result2 = loanRepository.findLoanInProgress(withoutPayments.id)
         Optional<InProgressLoanModel> result3 = loanRepository.findLoanInProgress(withPayments.id)
 
@@ -87,40 +87,40 @@ class LoanRepositorySpec extends RepositorySpec {
 
     void "test deleteNewLoan"() {
         given:
-        Loan newLn = prepareLn(debtorName: 'John', amount: BigDecimal.valueOf(1000), investorInterest: BigDecimal.valueOf(11),
+        Loan newLoan = prepareLoan(debtorName: 'John', amount: BigDecimal.valueOf(1000), investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(2000), status: LoanStatus.NEW)
-        Loan inProgressLn = prepareLn(debtorName: 'John1', amount: BigDecimal.valueOf(1100), investorInterest: BigDecimal.valueOf(11),
+        Loan inProgressLoan = prepareLoan(debtorName: 'John1', amount: BigDecimal.valueOf(1100), investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(2200), status: LoanStatus.IN_PROGRESS)
 
         when:
-        int deletedObjects = loanRepository.deleteNewLoan(inProgressLn.id)
+        int deletedObjects = loanRepository.deleteNewLoan(inProgressLoan.id)
         em.clear()
 
         then:
         deletedObjects == 0
-        !loanRepository.findById(inProgressLn.id).empty
+        !loanRepository.findById(inProgressLoan.id).empty
 
         when:
-        deletedObjects = loanRepository.deleteNewLoan(newLn.id)
+        deletedObjects = loanRepository.deleteNewLoan(newLoan.id)
         em.clear()
 
         then:
         deletedObjects == 1
-        loanRepository.findById(newLn.id).empty
+        loanRepository.findById(newLoan.id).empty
     }
 
     void "test updateLoanStatusToFailed"() {
         given:
-        Loan inProgressLn = prepareLn(debtorName: 'John1', amount: BigDecimal.valueOf(1100), investorInterest: BigDecimal.valueOf(11),
+        Loan inProgressLoan = prepareLoan(debtorName: 'John1', amount: BigDecimal.valueOf(1100), investorInterest: BigDecimal.valueOf(11),
                 amountToReturn: BigDecimal.valueOf(2200), status: LoanStatus.IN_PROGRESS)
 
         when:
-        int res = loanRepository.updateLoanStatusToFailed(inProgressLn.id)
+        int res = loanRepository.updateLoanStatusToFailed(inProgressLoan.id)
         em.clear()
 
         then:
         res == 1
-        loanRepository.findById(inProgressLn.id).get().status == LoanStatus.FAILED
+        loanRepository.findById(inProgressLoan.id).get().status == LoanStatus.FAILED
     }
 
 }

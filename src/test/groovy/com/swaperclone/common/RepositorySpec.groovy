@@ -30,7 +30,7 @@ class RepositorySpec extends Specification {
     @Autowired
     EntityManager em
 
-    protected Loan prepareLn(Map params) {
+    protected Loan prepareLoan(Map params) {
         return loanRepository.save(new Loan(debtorName: params.debtorName, amount: params.amount, investorInterest: params.investorInterest,
                 amountToReturn: params.amountToReturn, status: params.status, created: params.created ?: ZonedDateTime.now()))
     }

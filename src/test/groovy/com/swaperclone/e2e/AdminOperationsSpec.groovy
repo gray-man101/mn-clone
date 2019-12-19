@@ -80,7 +80,7 @@ class AdminOperationsSpec extends E2ESpec {
         when:
         topUpAsCustomer(amount: BigDecimal.valueOf(1500))
         performInvestOperationAsCustomer(loanId)
-        performPaymentCreateAsAdmin(loanId)
+        performPaymentCreateAsAdmin(loanId, [amount: BigDecimal.valueOf(100)])
         result = RestAssured.given().cookie(adminCookie)
                 .when().get('/api/loan/' + loanId + '/payment')
                 .then().statusCode(200)
@@ -103,6 +103,7 @@ class AdminOperationsSpec extends E2ESpec {
         then:
         payments.size() == 1
         payments[0].amount == BigDecimal.valueOf(110)
+        performPaymentCreateAsAdmin(loanId, [amount: BigDecimal.valueOf(3500), expectedStatus: 400])
 
         when:
         RestAssured.given().cookie(adminCookie).contentType(ContentType.JSON)

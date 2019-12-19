@@ -14,8 +14,8 @@ public interface InvestmentRepository extends JpaRepository<Investment, Long> {
 
     Optional<Investment> findByLoanId(Long loanId);
 
-    @Query("select i.id as id, i.amountToReceive as amountToReceive, l.debtorName as debtorName, " +
-            "   l.amount as amount, count(p.id) as payments, coalesce(sum(p.amount), 0) as paidAmount " +
+    @Query("select i.id as id, i.amountToReceive as amountToReceive, l.debtorName as debtorName, l.amount as amount, " +
+            "  count(p.id) as payments, coalesce(sum(p.amount), 0)/l.amountToReturn as percentageComplete " +
             "from Investment i " +
             "join i.loan as l " +
             "left join l.payments as p " +

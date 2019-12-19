@@ -78,9 +78,9 @@ class InvestmentServiceSpec extends UnitTestSpec {
         investmentRepository.findInvestmentStatuses(1L, _ as Pageable) >> Page.empty()
         investmentRepository.findInvestmentStatuses(2L, _ as Pageable) >> new PageImpl<InvestmentStatusModel>([
                 prepareInvestmentStatusModel(id: 1L, debtorName: 'Debtor1', amount: BigDecimal.valueOf(1000),
-                        amountToReceive: BigDecimal.valueOf(1200), payments: 1, paidAmount: BigDecimal.valueOf(100)),
+                        amountToReceive: BigDecimal.valueOf(1200), payments: 1, percentageComplete: BigDecimal.valueOf(0.05532243)),
                 prepareInvestmentStatusModel(id: 2L, debtorName: 'Debtor2', amount: BigDecimal.valueOf(1100),
-                        amountToReceive: BigDecimal.valueOf(1300), payments: 2, paidAmount: BigDecimal.valueOf(210)),
+                        amountToReceive: BigDecimal.valueOf(1300), payments: 2, percentageComplete: BigDecimal.valueOf(0.654895864)),
         ])
 
         when:
@@ -92,13 +92,13 @@ class InvestmentServiceSpec extends UnitTestSpec {
         result2.content[0].id == 1L
         result2.content[0].debtorName == 'Debtor1'
         result2.content[0].payments == 1
-        result2.content[0].paidAmount == BigDecimal.valueOf(100)
+        result2.content[0].percentageComplete == BigDecimal.valueOf(5.53)
         result2.content[0].overallAmount == BigDecimal.valueOf(1000)
         result2.content[0].amountToReceive == BigDecimal.valueOf(1200)
         result2.content[1].id == 2L
         result2.content[1].debtorName == 'Debtor2'
         result2.content[1].payments == 2
-        result2.content[1].paidAmount == BigDecimal.valueOf(210)
+        result2.content[1].percentageComplete == BigDecimal.valueOf(65.48)
         result2.content[1].overallAmount == BigDecimal.valueOf(1100)
         result2.content[1].amountToReceive == BigDecimal.valueOf(1300)
     }
