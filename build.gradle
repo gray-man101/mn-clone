@@ -46,3 +46,7 @@ bootRun {
 test {
     useJUnitPlatform()
 }
+
+clean {
+    dependsOn 'databaseComposeDown'
+}
